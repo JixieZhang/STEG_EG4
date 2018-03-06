@@ -1,0 +1,20 @@
+Hi again,
+
+here are my 2 new versions of the Fortran files that should do the trick. They would replace the similarly named files without the “17” appended.
+Unfortunately, I cannot test whether they even compile - please check and either fix any compilation errors (should be trivial if any) or let me know what they are so I can fix them.
+Note that these new versions should STILL also work for the deuteron, so you can simply replace the old files. However, if you want to run NH3 in the OLD configuration (before my kludge), you would have to set (by hand) the variable “FakeProton” in Function SIGMAR to “.FALSE.”. Hence my suggestion to first run the old code to get the cross section difference at least for one kinematic setting so we can compare “before/after”. In either case, you need have to find the correct place in the code where to set the variable “TARG” and set it either to “ND3” or to “NH3” as appropriate.
+
+Enjoy! If you have any feedback by Friday morning, I can still try to fix things. After that, we’ll just have to wait 2 weeks for me to do any further work on this. However, that’s maybe anyway as long as it will take to implement and test this all out.
+
+- Sebastian
+
+
+
+
+> On Jun 28, 2017, at 6:05 PM, kuhn <kuhn@jlab.org> wrote:
+>
+> Dear Krishna,
+>
+> hard to believe, but I’m actually working on this long-festering issue of implementing the proton into RCSLACPOL in a way that we can use for EG4 simulation. I will send you a few updated Fortran files shortly; however, before I do this, it would be VERY helpful if you could run a benchmark calculation with the code as it exists presently: Can you produce the cross section difference (or just the positive part of the cross section difference) with the code as is for just one Q2 (or just one angle theta, e.g. theta = 10 degrees), using two different settings for the “TARG” parameter (defined in radvarfix.inc, but I don’t know where it is SET!), namely one run with TARG = ‘ND3’ (the way we have run it so far) and one run with TARG = ‘NH3’. It may be easiest to just produce one of those tables and then convert them to ASCII so we can simply read off the cross section as a function of W or E' within a given theta column. I really don’t care about the details - the main point is to get a readout vs. W or E’ with fine enough binning (10-20 MeV) so we can see what the code “does” right now. You can choose beam energy (1.3 or 2 GeV) as you like.
+>
+> More later… - Sebastian

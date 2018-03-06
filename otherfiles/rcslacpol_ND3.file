@@ -1,0 +1,42 @@
+ T          ! INTPEAKING: If TRUE, peaking approximation for INTERNAL is used
+ T          ! EXTPEAKING: If TRUE, peaking approximation for EXTERNAL is used
+ ND3        ! TARG: NH3, HE3, ND3, LID for proton, HE3, or deuteron (ND3 or LID).
+ 0.000      ! PFERMI: Nominal: 0.050 for ND3, 0.170 for HE3 (guesses) 
+ LONG       ! POLTYPE: LONG or TRAN for longitudinal or transverse.
+ EG4A_1     ! EXPERIMENT: E80, E130, E142, E143_x, E154, E155_x: for targ. integ., or NONE. 
+ 22         ! IFFMOD: Elastic form factor model index. Nominal=14                 !kp: changed to 22 from 20 on 9/4/12
+ 1          ! IPOL:1=g2ww,4=g2=0,5=A2=0,6=A_perp=0.0
+ 1          ! IPOLRES: 1=Kuhn/Stuart(nominal), 2=Stuart, 3=DIS extrapolation
+ 5          ! IPAULI: 1=Stein, 2=Tsai, 3= deForest, 4=Van Orden, 5=None           !kp: changed to 5 from 2 on 9/4/12
+ 4          ! IA1: For A1 fit testing, =0 for frw_fit; =1 for nominal; =2 for sek_fit; =3 for sek_nce.
+ 2          ! IEXTERNAL: For external code testing. 1=oldcode, 2=newcode (Nominal)
+ 11         ! AsymChoice:
+!             1: standard: Use aparms.dat for A1, A2 in RR, IPOL = 1 -> g2WW in DIS
+!             2: standard except aparms0.dat for A1 (a1rr_ref.dat) in g2g1res
+!             3: standard except aparms0.dat for A2 (a2rr_ref.dat) in g2g1res
+!             4: standard except aparms0.dat for both A1 and A2 (can skip)
+!             5: standard except A2 = 0 for both RR and DIS (IPOL = 5)
+!             6: standard except A2 = a2rr_res.dat & A1 = a1rr_res.dat in the res. region
+!             7: standard except A2 contains extra term g2tw3 in DIS (IPOL = 2)
+!             8: standard except use new model for A2 in RR based on DMT
+!             9: standard except use Soffer limit for A2 throughout
+ 11         ! SFchoice
+!             1: standard: Use R1998 throughout, F2NMC_NEW for DIS, H2MODEL for RR
+!             2: standard except use R1998 + DR in DIS and H2MODEL
+!             3: standard except use F2GLOB instead of F2NMC in DIS
+!             4: standard except use RRicco instead of R1998 in H2MODEL (RR)
+!             5: standard except use Bodek instead of H2MODEL in the RR
+!             6: standard except use H2HallC instead of H2MODEL for F1 and R in the RR
+ eg1b_2.5_2.kine
+ eg1b_2.5_2p.out
+ eg1b_2.5_2p.dat
+!Model flags  FLAG       NOMINAL If True:
+.TRUE.     ! NMC        .TRUE.  F2NMC is called, otherwise F2GLOB is called.
+.FALSE.    ! NORES      .FALSE. DIS F2 is extrapolated to the resonance region.
+.FALSE.    ! BODEK1     .TRUE.  BODEK is called, otherwise H2MODEL(proton) is called.
+.FALSE.    ! ERROR      .FALSE. W1,W2 increased by NMC, R1990 errors
+.FALSE.    ! TARGNEG    .FALSE. TA and TB are decreased by 5%
+.FALSE.    ! TARGPOS    .FALSE. TA and TB are increased by 5%
+.FALSE.    ! DELTEST    .FALSE. Changes integration DELTA from 0.01 to 0.05
+.FALSE.    ! ZTEST      .FALSE. Z changed to 1
+.FALSE.    ! MULTISOFT  .FALSE. Corrects for multi-soft photon emission
