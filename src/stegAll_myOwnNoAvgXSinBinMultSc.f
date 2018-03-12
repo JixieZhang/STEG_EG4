@@ -41,6 +41,10 @@ c     ===== ===== My own Additions =====
       INTEGER DBG_MY_KINE
 c By jixie: add this function to check infinity and NAN
       INTEGER IsInfinityOrNAN
+
+c Jixie: PACKF, ITARG will be used to call xiaochao's subroutine to calculate TA, TB, PACKF      
+      REAL*8  PACKF             
+      INTEGER ITARG             
       
 c      integer arg_count         !kp 4/11/12 (crucial to put both cs_map and event generation function in the same prog)
 c      character(len=255) cmd
@@ -71,7 +75,7 @@ c     ===========kp: Variables from RCSLACPOL =====
       real vert_z,vert_x,vert_y,vert_r,vert_phi
       real vert_el_x,vert_el_y,vert_el_z
       real xmin(2),xmax(2),dxx(2),xx(2),fxmax,phi_sec
-      real sgs, Qsq, www        !kp:5/11/12: Qsq,www added to generate only inelastic events using overall map made earlier
+      real sgs, Qsq, www,Ep_elas,Ep_cut   !kp:5/11/12: Qsq,www added to generate only inelastic events using overall map made earlier
       real THD,thSig,thCor,phCor,GausGenr !kp: 1/27/13: added for the purpose of applying mult. scat. corr.
       integer ipart,NW,IBID,MEVT,RUN
       integer NVAR,lrecl,maxpages,nparz,ntot,isec
@@ -324,6 +328,24 @@ C By Jixie: sometimes the radiated unpolarized XS is negative, if it happens, se
               sig = 0.D0
             endif         
 
+
+c By Jixie: 20180310   (cutting off events below W=0.95, or E'>EP_ELAS-EP_BIN_WIDTH)
+c regular E' = (M^2+2*M*E-W^2)/(4*E*sin^2(Theta/2)+2*M)
+c elastic scattering: E' = E/(1+E/M*(1-cosTh))
+            Qsq=2.e0*Ebeam*p_el*(1.e0-cos(theta_el))       
+            www=sqrt(mp**2 + 2.e0*mp*(Ebeam-p_el) - Qsq)      !mp = 0.938272029e0 (defined above)
+            Ep_elas = Ebeam/(1.e0+Ebeam/mp*(1.e0-cos(theta_el)))
+            Ep_cut = Ep_elas - ddp
+            if(www .lt. 0.95e0 .or. p_el .gt. Ep_cut) then              
+              print*, "Under elastic peak, reset to zero !!! sig=",sig
+              PP_SIGA(NPTS) = 0.0D0 
+              PP_SIGRADA(NPTS) = 0.0D0 
+              PP_SIGP(NPTS) = 0.0D0 
+              PP_SIGRADP(NPTS) = 0.0D0 
+              sig = 0.D0
+            endif         
+
+
             print*,'steg.f: NPTS,th,p,PP_X(NPTS),sig= ',
      >           NPTS,THRC,p_el,PP_X(NPTS),sig
 c            print*,' '
@@ -445,8 +467,8 @@ c      print*, '2'
 
 c     kp: 5/11/12 (added to generate exclusively inelastic events (cutting off events below W=1.0)
 c     Disable/Comment out these three lines when we need full spectrum in W (not just inelastic events)
-c         Qsq=2.e0*Ebeam*p_el*(1.e0-cos(theta_el))        !kp: Q^2 = - 4-mom-transfer-squared = 4*Eb*Ep*sin^2(th/2)
-c         www=sqrt(mn**2 + 2*mn*(Ebeam-p_el) - Qsq)      !!kp: average nucleon mass = 0.938272 (defined in radcon.inc)
+c         Qsq=2.e0*Ebeam*p_el*(1.e0-cos(theta_el))      !kp: Q^2 = - 4-mom-transfer-squared = 4*Eb*Ep*sin^2(th/2)
+c         www=sqrt(mn**2 + 2*mn*(Ebeam-p_el) - Qsq)     !!kp: average nucleon mass = 0.939 (defined in radcon.inc)
 c         if(www<1.0) cycle
 c     kp: 5/11/12 (added to generate exclusively inelastic events (cutting off events below W=1.0)
 
@@ -497,7 +519,19 @@ c         CALL RLEG4(TA,TB,0.D0,0.D0,zcenter, THET,0.D0,I_EG4, EB_INDEX)
              TA=0.0268+(1.43d-4)*THD
      >            -(3.81d-6)*(THD**2.0)+(8.19d-8)*(THD**3.0) !kp: 4/7/12
           endif
-
+                    
+C     Added by jixie:
+C     The above TA,TB are used for ND3 target. For NH3, call xiaochao's subroutine
+C     Here I always use ITARG=1 (1.0cm NH3) for the inelastic for energies 3.0, 2.3, 2.0 and 1.3 GeV. 
+C     For 1.1 GeV only the bottom cell was used (ITARG=11).
+         IF(TARG .EQ. 'NH3') THEN
+            ITARG = 1
+            IF (EB_INDEX .EQ. 1) THEN
+               ITARG = 11
+            ENDIF
+            CALL rleg4_simp(TA,TB,PACKF,-100.93D0,theta_el,ITARG,
+     >                      EB_INDEX)
+         ENDIF  
 c     Eq. 27.14 from http://pdg.lbl.gov/2009/reviews/rpp2009-rev-passage-particles-matter.pdf for width of mult. scat. ang. distb. 
 c
 c     th0 = thSig = sigma of Gaussian= (13.6 MeV/(beta*c*p))*z*sqrt(x/X0)*(1+0.038*ln(x/X0))        -----   (Eq. 27.14)
