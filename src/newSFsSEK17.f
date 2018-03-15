@@ -387,12 +387,12 @@ c     sk	Latest fit by Peter Bosted / Eric Christie 2009
          do I = 1, 3840
             read(77,*) IQ2eg1, IWeg1, (Rin(J), J=1,2)
             if((1.le.IQ2eg1).and.(IQ2eg1.le.40).and.(108.le.IWeg1).and.(IWeg1.le.203)) then
-               do J = 1,2
-                  ResR(IQ2eg1,IWeg1,J) = Rin(J)
-               enddo
-            endif
-         enddo
-         CLOSE(UNIT=77)
+            do J = 1,2
+               ResR(IQ2eg1,IWeg1,J) = Rin(J)
+            enddo
+         endif
+      enddo
+      CLOSE(UNIT=77)
       endif
 c11   NOTE: This prefilled array of R values is a kludge stemming from a time where the coded R didn't 
 c11   work properly for all kinematics. It's not clear that it is still needed. For compatibility reasons
@@ -490,30 +490,30 @@ c     write(6,*) ' Called F1F2IN09'
 	    endif
          endif
          if ((SFChoice .eq. 13) .or.(SFChoice .eq. 16) .or. (SFChoice.eq.19)) then
-	    if (R .lt. dR) then
-               R = R + dR       !
-	    else
-               R = R - dR
-	    endif
+         if (R .lt. dR) then
+            R = R + dR          !
+         else
+            R = R - dR
          endif
-         F1 = (4.D0*Mn*Mn*X*X/Q2+1.D0)*F2/2.0D0/X/(1+R)
+      endif
+      F1 = (4.D0*Mn*Mn*X*X/Q2+1.D0)*F2/2.0D0/X/(1+R)
 
-         if(A_targ .gt. 1.5) then
-	    if(SFChoice .lt. 17) then
-               call F1F2QE09(Z_targ, A_targ, Q2, WSQ, F1res, F2res)
-	    else
-               call F1F2QE09dr(Z_targ, A_targ, Q2, WSQ, F1res, F2res)
-	    endif
+      if(A_targ .gt. 1.5) then
+         if(SFChoice .lt. 17) then
+            call F1F2QE09(Z_targ, A_targ, Q2, WSQ, F1res, F2res)
+         else
+            call F1F2QE09dr(Z_targ, A_targ, Q2, WSQ, F1res, F2res)
+         endif
 c     if(F1res .lt. 0) write(6,*) Z_targ,A_targ,Q2,WSQ,F1res,F2res
-	    if (F1res .gt. 0.0) F1 = F1+F1res
-	    if (F2res .gt. 0.0) F2 = F2+F2res
-         endif
-         if ((SFChoice.eq.12) .or. (SFChoice.eq.15) .or. (SFChoice.eq. 18))  then
-            F1 = F1*1.03
-            F2 = F2*1.03
-         endif
-         F1res = F1
-         F2res = F2
+         if (F1res .gt. 0.0) F1 = F1+F1res
+         if (F2res .gt. 0.0) F2 = F2+F2res
+      endif
+      if ((SFChoice.eq.12) .or. (SFChoice.eq.15) .or. (SFChoice.eq. 18))  then
+      F1 = F1*1.03
+      F2 = F2*1.03
+      endif
+      F1res = F1
+      F2res = F2
       endif                     ! DORES
 c     write(6,*) ' End of DORES: ', F1, F2
       
@@ -524,45 +524,45 @@ c     write(6,*) ' End of DORES: ', F1, F2
 	    if (F2 .lt. 0.0D0) F2 = 0.0D0
          endif
          if ((SFChoice.eq.12) .or. (SFChoice.eq.15) .or. (SFChoice.eq. 18))  then
-	    F2 = F2+EF2
+         F2 = F2+EF2
+      endif
+      if(TARG .ne. 'P') then
+         Xeff = X
+         Q2eff = Q2
+         if (Q2eff .lt. 0.4D0) then
+            if (Q2eff .lt. 0.0001) RETURN
+            Q2eff = 0.4D0
+            Xeff = X*(1.D0 + 0.2715D0/Q2)/1.67875D0
+            if (Xeff .ge. 1.0D0) RETURN
          endif
-         if(TARG .ne. 'P') then
-	    Xeff = X
-	    Q2eff = Q2
-	    if (Q2eff .lt. 0.4D0) then
-               if (Q2eff .lt. 0.0001) RETURN
-               Q2eff = 0.4D0
-               Xeff = X*(1.D0 + 0.2715D0/Q2)/1.67875D0
-               if (Xeff .ge. 1.0D0) RETURN
-	    endif
-	    X2 = Xeff*Xeff
-	    X3 = X2*Xeff
-	    A = 0.979 -1.692*X +2.797*X2 -4.313*X3 +3.075*X3*X
-	    B = (-.171)*X2 + .244*X3 ! replaced 10/22/97 by correct value on x3
-	    SIGNP = A *(1+X2/Q2eff)*(Q2eff/20.)**B
-	    if(SIGNP .le. 0.0) SIGNP = 0.0
-	    if(SIGNP .ge. 1.0) SIGNP = 1.0
-	    if(TARG .eq. 'N') F2 = F2*SIGNP
-	    if(TARG .eq. 'D') F2 = F2*(1.0+SIGNP)
-	    if(TARG .eq. '3') F2 = F2*(2.0+SIGNP)
-         endif                  ! TARG .ne. 'P'
-         CALL R1998(X,Q2,R,DR,GOOD)
-         if ((SFChoice .eq. 13) .or.(SFChoice .eq. 16) .or. (SFChoice.eq.19)) then
-	    if (R .lt. dR) then
-               R = R + dR       !
-	    else
-               R = R - dR
-	    endif
-         endif
-         F1 = (4.D0*Mn*Mn*X*X/Q2+1.D0)*F2/2.0D0/X/(1+R)
-         if (DORES) then
-	    FRAC = 0.0
-	    if (Q2 .gt. 4.0D0) FRAC = (Q2 - 4.0D0)/6.0D0
-	    if (WSQ .gt. 6.0D0) FRAC = FRAC + (1.0D0 - FRAC)*(WSQ - 6.0D0)/(9.0D0 - 6.0D0)
-	    FRAC = FRAC*1.570796327 ! Pi/2
-	    F1 = F1*(dsin(FRAC))**2 + F1res*(dcos(FRAC))**2
-	    F2 = F2*(dsin(FRAC))**2 + F2res*(dcos(FRAC))**2
-         endif
+         X2 = Xeff*Xeff
+         X3 = X2*Xeff
+         A = 0.979 -1.692*X +2.797*X2 -4.313*X3 +3.075*X3*X
+         B = (-.171)*X2 + .244*X3 ! replaced 10/22/97 by correct value on x3
+         SIGNP = A *(1+X2/Q2eff)*(Q2eff/20.)**B
+         if(SIGNP .le. 0.0) SIGNP = 0.0
+         if(SIGNP .ge. 1.0) SIGNP = 1.0
+         if(TARG .eq. 'N') F2 = F2*SIGNP
+         if(TARG .eq. 'D') F2 = F2*(1.0+SIGNP)
+         if(TARG .eq. '3') F2 = F2*(2.0+SIGNP)
+      endif                     ! TARG .ne. 'P'
+      CALL R1998(X,Q2,R,DR,GOOD)
+      if ((SFChoice .eq. 13) .or.(SFChoice .eq. 16) .or. (SFChoice.eq.19)) then
+      if (R .lt. dR) then
+         R = R + dR             !
+      else
+         R = R - dR
+      endif
+      endif
+      F1 = (4.D0*Mn*Mn*X*X/Q2+1.D0)*F2/2.0D0/X/(1+R)
+      if (DORES) then
+         FRAC = 0.0
+         if (Q2 .gt. 4.0D0) FRAC = (Q2 - 4.0D0)/6.0D0
+         if (WSQ .gt. 6.0D0) FRAC = FRAC + (1.0D0 - FRAC)*(WSQ - 6.0D0)/(9.0D0 - 6.0D0)
+         FRAC = FRAC*1.570796327 ! Pi/2
+         F1 = F1*(dsin(FRAC))**2 + F1res*(dcos(FRAC))**2
+         F2 = F2*(dsin(FRAC))**2 + F2res*(dcos(FRAC))**2
+      endif
       endif                     ! DOINEL
       return
       END
@@ -775,7 +775,7 @@ c     LIMIT = DSQRT(R)
 *     
 *     ... Many changes by SEK, most recent 4-Jun-01
 *     ... Completely new segment to implement updated A1p models SEK 24-Nov-2008
-****************************************************************************** 7/30/13
+******************************************************************************7/30/13
 *     
 *     kpa: 7/30/13: added kpaVarChanges.inc to control the change of A1 in G1G2new(..) of newSFsSEK.f by 
 *     a known amount such as 0.1. This same file is used in set_things_up.f to control 
@@ -785,12 +785,12 @@ c     LIMIT = DSQRT(R)
 *     simulations by varying A1 to A1+0.1, AsymChoice from 11 to 12 & 15 and SFchoice 
 *     from 11 to 12 & 13 (meaning 6 separate simulations - only one thing changed, not 
 *     one change on top of another)
-*
-****************************************************************************** 7/30/13
+*     
+******************************************************************************7/30/13
       IMPLICIT NONE
       INCLUDE 'instruct.inc'
       INCLUDE 'kpaVarChanges.inc' !kpa: 7/30/13  (to control change in A1)
-c      REAL*8 changeA1 
+c     REAL*8 changeA1 
 
       REAL*8 X, Q2, G1, G2, A1, A2, W2, NU, TH, XMAX, A1n, A2n, A1p,A2p
 
@@ -1120,7 +1120,7 @@ c     >       MOD = (-0.43885D0)*(1.D0-X)**3 * (1.D0 - 0.333209D0/X)
 *     2/93, LMS.
 *     6/93, LMS. Get G1 using E155 formulae
 *     6/93, LMS. Added deuterium.
-*   June 2017 SEK: many changes, including treatment of D and elastic p
+*     June 2017 SEK: many changes, including treatment of D and elastic p
 ******************************************************************************
       IMPLICIT NONE
 
@@ -1129,76 +1129,76 @@ c     >       MOD = (-0.43885D0)*(1.D0-X)**3 * (1.D0 - 0.333209D0/X)
 
       REAL*8 E,EP,TH, X, Q2, F1, F2, W1, W2, NU, G1, G2, 
      >     G1X, G2X, WSQ, DUM1, DUM2, A1, A2, SIN2, SIGNP
-           INTEGER YoniIndex    ! CSK
+      INTEGER YoniIndex         ! CSK
 
 
-           CHARACTER*1 TARG
-           LOGICAL GOOD, SUPPRESS
+      CHARACTER*1 TARG
+      LOGICAL GOOD, SUPPRESS
 
-           W1 = 0.D0
-           W2 = 0.D0
-           G1 = 0.D0
-           G2 = 0.D0
+      W1 = 0.D0
+      W2 = 0.D0
+      G1 = 0.D0
+      G2 = 0.D0
 
-           SIN2 = (DSIN(TH*RADCON/2.D0))**2
-           Q2 = 4.D0*E*EP*SIN2
-           if(Q2 .lt. 0.0001) return
-           NU = E - EP
-           X = Q2/(2.D0*MN*NU)
-           if (X .lt. 0.0001) return
-           if((TARG.ne.'D').AND.(TARG.ne.'H')) then ! Implement pseudo proton el. SF
-              if(X.gt.0.99) return
-           else
-              if(X.gt. 1.98) return
-           endif
-           WSQ = MN2 + 2.D0*MN*NU - Q2
-           if(WSQ.le.0.0D0) return
+      SIN2 = (DSIN(TH*RADCON/2.D0))**2
+      Q2 = 4.D0*E*EP*SIN2
+      if(Q2 .lt. 0.0001) return
+      NU = E - EP
+      X = Q2/(2.D0*MN*NU)
+      if (X .lt. 0.0001) return
+      if((TARG.ne.'D').AND.(TARG.ne.'H')) then ! Implement pseudo proton el. SF
+         if(X.gt.0.99) return
+      else
+         if(X.gt. 1.98) return
+      endif
+      WSQ = MN2 + 2.D0*MN*NU - Q2
+      if(WSQ.le.0.0D0) return
 
 
-            SUPPRESS = .FALSE.
-            IF(NORES) SUPPRESS = .TRUE.
+      SUPPRESS = .FALSE.
+      IF(NORES) SUPPRESS = .TRUE.
 
-           IF(WSQ.LT.1.15D0.AND.TARG.EQ.'P') THEN
-C   SEK2017: In this case we treat the proton with a fake "SF"
-            CALL ProFake(X,Q2,F1,F2,SIGNP,G1X,G2X,A1,A2,suppress)
-            RETURN
-           ENDIF
+      IF(WSQ.LT.1.15D0.AND.TARG.EQ.'P') THEN
+C     SEK2017: In this case we treat the proton with a fake "SF"
+         CALL ProFake(X,Q2,F1,F2,SIGNP,G1X,G2X,A1,A2,suppress)
+         RETURN
+      ENDIF
 c     IF(WSQ.LT.1.15D0.AND.TARG.NE.'D') RETURN 
-           
+      
 c     IF(WSQ.GT.4.0) RETURN  
-            IF(FL_POL.AND..NOT.FL_UNPOL) GOTO 35
+      IF(FL_POL.AND..NOT.FL_UNPOL) GOTO 35
 
 C     SK
-           if(TARG.ne.'D')then
-              CALL F1F2new(X,Q2,TARG,F1,F2,SIGNP,SUPPRESS)
-           else
-              YoniIndex=2
-              call DSFs(X,Q2,YoniIndex,F1,F2,SIGNP,G1X,G2X,A1,A2,suppress)
-           endif
+      if(TARG.ne.'D')then
+         CALL F1F2new(X,Q2,TARG,F1,F2,SIGNP,SUPPRESS)
+      else
+         YoniIndex=2
+         call DSFs(X,Q2,YoniIndex,F1,F2,SIGNP,G1X,G2X,A1,A2,suppress)
+      endif
 C     SK	
-           W1 = F1/MN
-           W2 = F2/NU
+      W1 = F1/MN
+      W2 = F2/NU
 
 
- 35        CONTINUE
-           IF(FL_POL) THEN
+ 35   CONTINUE
+      IF(FL_POL) THEN
 
 C     SK
-              if(TARG.ne.'D')then       
-                 CALL G1G2new(X,Q2,TH,TARG,G1X,G2X,A1,A2)
-              else
-                 YoniIndex=2
-                 call DSFs(X,Q2,YoniIndex,F1,F2,SIGNP,G1X,G2X,A1,A2,suppress)
-              endif
+         if(TARG.ne.'D')then       
+            CALL G1G2new(X,Q2,TH,TARG,G1X,G2X,A1,A2)
+         else
+            YoniIndex=2
+            call DSFs(X,Q2,YoniIndex,F1,F2,SIGNP,G1X,G2X,A1,A2,suppress)
+         endif
 C     SK
-              G1 = G1X/(MN*MN*NU)
-              G2 = G2X/(MN*NU*NU)
+         G1 = G1X/(MN*MN*NU)
+         G2 = G2X/(MN*NU*NU)
 
-           ENDIF
+      ENDIF
 
 
-           RETURN
-           END      
+      RETURN
+      END      
 ********************************************************************************
 
 ********************************************************************************
@@ -1247,17 +1247,17 @@ c     sk	2007 parametrizations: Proton Arrington et al., Gmn CLAS and Mainz, Mad
      *        (1.0D0+TAU*(9.531+TAU*(0.591+TAU*TAU*TAU*4.994)))
          GMP = RMUP*(1.0D0+TAU*(-2.151+TAU*(4.261+TAU*0.159)))/
      *        (1.0D0+TAU*(8.647+TAU*(0.001+TAU*(5.245+TAU*(82.817+TAU*14.191)))))
-              else
-                 write(6,*) ' Wrong Farm Factor Model'
-                 return
-              endif
-              GMN = RMUN/(1.0D0+3.26*QQG/(1-0.272*QQG/(1+0.0123*QQG/(1-2.52*QQG/(1+2.55*QQG)))))
-              GD = 1.D0/(1.D0+QQG/.71D0)**2
-              GEN = 0.888D0*(-RMUN)*TAU*GD/(1.0D0+3.21*TAU)	
+      else
+         write(6,*) ' Wrong Farm Factor Model'
+         return
+      endif
+      GMN = RMUN/(1.0D0+3.26*QQG/(1-0.272*QQG/(1+0.0123*QQG/(1-2.52*QQG/(1+2.55*QQG)))))
+      GD = 1.D0/(1.D0+QQG/.71D0)**2
+      GEN = 0.888D0*(-RMUN)*TAU*GD/(1.0D0+3.21*TAU)	
 
- 900          RETURN
+ 900  RETURN
 
-              END
+      END
 ********************************************************************************
 
 ********************************************************************************
@@ -1328,56 +1328,56 @@ c     sk	2007 parametrizations: Proton Arrington et al., Gmn CLAS and Mainz, Mad
 ********************************************************************************
 *******************************************************************************
 
-        SUBROUTINE ProFake(X, Q2, F1, F2, R, G1, G2, A1, A2, suppress)
+      SUBROUTINE ProFake(X, Q2, F1, F2, R, G1, G2, A1, A2, suppress)
 *******************************************************************************
-*
-* SEK 2017: Subroutine to fake elastic proton through equivalent SFs
-* 
+*     
+*     SEK 2017: Subroutine to fake elastic proton through equivalent SFs
+*     
 ******************************************************************************
-       IMPLICIT NONE
+      IMPLICIT NONE
 
-        include 'instruct.inc'
+      include 'instruct.inc'
 
-        REAL*8 X, Q2, W, G1n, G1p, G2n, G2p, F1n, F1p, F2n, F2p
-        real*8  F1, F2, R, G1, G2, A1, A2, Nu, QoverNu, GEP,GEN,GMP,GMN
-        real*8 deltaX
-csk17
-        integer IG
-        CHARACTER*1 TARG, TARGP /'P'/, TARGN /'N'/
-        logical suppress
+      REAL*8 X, Q2, W, G1n, G1p, G2n, G2p, F1n, F1p, F2n, F2p
+      real*8  F1, F2, R, G1, G2, A1, A2, Nu, QoverNu, GEP,GEN,GMP,GMN
+      real*8 deltaX
+c     sk17
+      integer IG
+      CHARACTER*1 TARG, TARGP /'P'/, TARGN /'N'/
+      logical suppress
 
-        IG = 22
-        deltaX = 0.01*0.939/Q2
-        if(deltaX .lt. 0.01) deltaX = 0.01
-        if(deltaX .gt. 0.5) deltaX = 0.5
-csk17   Keep within W resolution of about +/- 5 MeV
-        call NewFORM(IG,Q2,GEP,GEN,GMP,GMN)
-        if((x.GT.(1.0 - deltaX)).AND.(X.LT.(1.0 + deltaX)))THEN
-          F1 = 0.5D0*GMP**2/(2.0*deltaX)
-        else
-          F1 = 0.0
-          F2 = 0.0
-          R = 0.0
-          G1 = 0.0
-          G2 = 0.0
-          A1 = 1.0
-          A2 = 0.0
-          RETURN
-        endif
-	    QoverNu = 4.0D0*0.93827D0*0.93827D0/Q2
-        R = QoverNu*GEP**2/GMP**2
-        F2 = 2.0D0*F1*(R + 1.0D0)/(QoverNu + 1.0D0)
-        A1 = 1.0D0
+      IG = 22
+      deltaX = 0.01*0.939/Q2
+      if(deltaX .lt. 0.01) deltaX = 0.01
+      if(deltaX .gt. 0.5) deltaX = 0.5
+c     sk17   Keep within W resolution of about +/- 5 MeV
+      call NewFORM(IG,Q2,GEP,GEN,GMP,GMN)
+      if((x.GT.(1.0 - deltaX)).AND.(X.LT.(1.0 + deltaX)))THEN
+         F1 = 0.5D0*GMP**2/(2.0*deltaX)
+      else
+         F1 = 0.0
+         F2 = 0.0
+         R = 0.0
+         G1 = 0.0
+         G2 = 0.0
+         A1 = 1.0
+         A2 = 0.0
+         RETURN
+      endif
+      QoverNu = 4.0D0*0.93827D0*0.93827D0/Q2
+      R = QoverNu*GEP**2/GMP**2
+      F2 = 2.0D0*F1*(R + 1.0D0)/(QoverNu + 1.0D0)
+      A1 = 1.0D0
 
-        IG = 21
-        call NewFORM(IG,Q2,GEP,GEN,GMP,GMN)
-        A2 = dsqrt(QoverNu)*GEP/GMP
+      IG = 21
+      call NewFORM(IG,Q2,GEP,GEN,GMP,GMN)
+      A2 = dsqrt(QoverNu)*GEP/GMP
 
-        G1 = F1*(A1+DSQRT(QoverNu)*A2)/(1.0D0 + QoverNu)
-        G2 = F1*(A2/DSQRT(QoverNu)-A1)/(1.0D0 + QoverNu)
+      G1 = F1*(A1+DSQRT(QoverNu)*A2)/(1.0D0 + QoverNu)
+      G2 = F1*(A2/DSQRT(QoverNu)-A1)/(1.0D0 + QoverNu)
 
-        RETURN
-        END
+      RETURN
+      END
 
 *******************************************************************************
 

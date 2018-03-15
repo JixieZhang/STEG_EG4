@@ -1,5 +1,5 @@
       subroutine sgm_model_rcslacpol(NPTS,TMOD,EE,EEP, !E = Ebeam, EP = E' = E_prime and THETAD = theta in degrees
-     >     THETADD,XXCUT,SCAT_PHIRR,sig)
+     >     THETADD,XXCUT,SCAT_PHIRR,sig,EB_INDEX)
 
 
       IMPLICIT NONE
@@ -102,7 +102,7 @@ c     ELSEIF(EXPER.EQ.'EG4') THEN
       ELSEIF(EXPER.EQ.'EG4A') THEN !A added for convenience of not having to modify a lot of things
          IF(.NOT.ZTEST) Z = 7.D0
 c     IF(.NOT.ZTEST) Z = 1.D0 !kp: 2/27/13
-         CALL INTEG4(TMOD,NPTS,Q2OUT, EB_INDEX)
+         CALL INTEG4(TMOD,NPTS,Q2OUT,EB_INDEX)
       ENDIF 
 
 

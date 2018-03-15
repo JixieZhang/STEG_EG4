@@ -1,4 +1,4 @@
-      SUBROUTINE INTEG4(IMODE,NPTS,Q2OUT, EB_INDEX)
+      SUBROUTINE INTEG4(IMODE,NPTS,Q2OUT,EB_INDEX)
 *****************************************************************************
 *     This program was made of a copy of integ1b.f       Jan, 12, 2012, K. Adhikari
 *     I simply replaced eg1b lines with the ones corresponding to eg4 ones. 

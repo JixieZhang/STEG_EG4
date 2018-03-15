@@ -1,0 +1,333 @@
+######################################################################################
+#V1.0 is the version @ 20170911, 
+#the first working version modified from Krishna's copy
+######################################################################################
+
+diff v1.0/SrcDir/integ4.f STEG_EG4/src/integ4.f
+1c1
+<       SUBROUTINE INTEG4(IMODE,NPTS,Q2OUT, EB_INDEX)
+---
+>       SUBROUTINE INTEG4(IMODE,NPTS,Q2OUT,EB_INDEX)
+58a59,61
+>       INTEGER ITARG             !jixie, add to call xiaochao's subroutine
+>       REAL*8  PACKF             !jixie, add to call xiaochao's subroutine
+>       
+87c90
+< 
+---
+>       
+109c112,113
+<       I=2
+---
+>       I=2                       !for EG1, 1 is for ND3, 2 is for NH3
+>       I_EG4=1                   !added by Jixie. For EG4,  I_EG4 =1 is for NH3
+112c116
+< 
+---
+>       
+134a139,150
+> C     
+> C     Added by jixie:
+> C     The above TA,TB are used for ND3 target. For NH3, call xiaochao's subroutine
+> C     Here I always use ITARG=1 (1.0cm NH3) for the inelastic for energies 3.0, 2.3, 2.0 and 1.3 GeV. 
+> C     For 1.1 GeV only the bottom cell was used (ITARG=11).
+>          IF(I_EG4 .EQ. 1) THEN
+>             ITARG = 1
+>             IF (EB_INDEX .EQ. 1) THEN
+>                ITARG = 11
+>             ENDIF
+>             CALL rleg4_simp(TA,TB,PACKF,zcenter,THET,ITARG,EB_INDEX)
+>          ENDIF  
+173c189,190
+<                   CALL RLEG4(TA,TB,xtarg,ytarg,Zv,THET,0.D0,I_EG4,EB_INDEX)
+---
+>                   CALL RLEG4(TA,TB,xtarg,ytarg,Zv,THET,0.D0,I_EG4,
+>      >             EB_INDEX)
+Only in v1.0/SrcDir/: Makefile
+Only in v1.0/SrcDir/: Makefile_org
+diff v1.0/SrcDir/newSFsSEK17.f STEG_EG4/src/newSFsSEK17.f
+1342a1343,1344
+>       real*8 deltaX
+> c     sk17
+1347a1350,1353
+>       deltaX = 0.01*0.939/Q2
+>       if(deltaX .lt. 0.01) deltaX = 0.01
+>       if(deltaX .gt. 0.5) deltaX = 0.5
+> c     sk17   Keep within W resolution of about +/- 5 MeV
+1349,1350c1355,1356
+<       if((x.GT.0.99).AND.(X.LT.1.01))THEN
+<          F1 = 0.5D0*GMP**2/0.02
+---
+>       if((x.GT.(1.0 - deltaX)).AND.(X.LT.(1.0 + deltaX)))THEN
+>          F1 = 0.5D0*GMP**2/(2.0*deltaX)
+Only in STEG_EG4/src: newSFsSEK17.f.~1~
+Only in STEG_EG4/src: radLengthEG4_simp.f
+Only in STEG_EG4/src: sek_meKPA.f.~1~
+diff v1.0/SrcDir/set_things_up.f STEG_EG4/src/set_things_up.f
+1c1
+<       subroutine SET_THINGS_UP(TMOD)
+---
+>       subroutine SET_THINGS_UP(Ebeam,TMOD,EB_INDEX)
+54c54
+<       INTEGER EB_INDEX          !kp: don't forget to change the value of this below or modify code get it from command line
+---
+>       INTEGER EB_INDEX          !Jixie: EB_INDEX will be signed according to input beam erngy and target type
+92,93d91
+<       EB_INDEX = 2              !kp: 
+< 
+104d101
+<       print*,'dbg1'
+108c105
+<       print*,'dbg2'
+---
+>       print*,'Finished reading parameter file rcslacpol.file ...'
+174,177c171,200
+< 
+< 
+< 
+< 
+---
+> c     Jixie: set EB_INDEX according to the target types and beam energies:
+> c     For ND3: EB_INDEX = 1 for 1.339 GeV, 2 for 1.998 GeV;
+> c     For NH3: EB_INDEX = 1 (1.1 GeV), 2 (1.3 GeV), 3 (2.0 GeV), 4 (2.3 GeV), 5 (3.0 GeV)
+> 
+>       EB_INDEX = 0              ! DEFAULT VALUE     
+>       IF(TARG .EQ. 'ND3') THEN
+>          IF(ABS(Ebeam-1.339D0) .LT. 0.1) THEN
+>             EB_INDEX = 1             
+>          ELSEIF(ABS(Ebeam-1.998D0) .LT. 0.1) THEN
+>             EB_INDEX = 2             
+>          ENDIF
+>       ELSE       
+>          IF(ABS(Ebeam-1.0539D0) .LT. 0.1) THEN
+>             EB_INDEX = 1             
+>          ELSEIF(ABS(Ebeam-1.3369D0) .LT. 0.1) THEN
+>             EB_INDEX = 2              
+>          ELSEIF(ABS(Ebeam-1.9911D0) .LT. 0.1) THEN
+>             EB_INDEX = 3              
+>          ELSEIF(ABS(Ebeam-2.2596D0) .LT. 0.1) THEN
+>             EB_INDEX = 4              
+>          ELSEIF(ABS(Ebeam-2.999D0) .LT. 0.1) THEN
+>             EB_INDEX = 5             
+>          ENDIF   
+>       ENDIF
+> c     Jixie: make sure spit some error message if EB_INDEX is not signed properly    
+>       IF(EXPERIMENT(1:4) .EQ. 'EG4A' .AND. EB_INDEX .EQ. 0) THEN
+>          PRINT*,'Error: could not sign value to EB_INDEX!',
+>      >        ' unknown Ebeam (',Ebeam,')'
+>          CALL ABORT
+>       ENDIF
+216,217c239,240
+< 
+< 
+---
+>       write(6,*) 'Ebeam', Ebeam !Jixie print this for debug
+>       write(6,*) 'EB_INDEX', EB_INDEX !Jixie print this for debug
+250c273
+<       print *, EXPER
+---
+> C     print *,'EXPER =',EXPER
+275,276c298
+< 
+< 
+---
+>       
+diff v1.0/SrcDir/sgm_model_rcslacpolSEKnw.f STEG_EG4/src/sgm_model_rcslacpolSEKnw.f
+1,2c1,2
+<       subroutine sgm_model_rcslacpol(NPTS,TMOD,EE,EEP, !E = Ebeam, EP = E' = E_prime and THETAD = theta in degrees?
+<      >     THETADD,XXCUT,SCAT_PHIRR,sig)
+---
+>       subroutine sgm_model_rcslacpol(NPTS,TMOD,EE,EEP, !E = Ebeam, EP = E' = E_prime and THETAD = theta in degrees
+>      >     THETADD,XXCUT,SCAT_PHIRR,sig,EB_INDEX)
+23c23
+<       INTEGER EB_INDEX          !kp: don't forget to change the value of this below or modify code get it from command line
+---
+>       INTEGER EB_INDEX          !Jixie: EB_INDEX will be signed according to input beam erngy and target type
+105c105
+<          CALL INTEG4(TMOD,NPTS,Q2OUT, EB_INDEX)
+---
+>          CALL INTEG4(TMOD,NPTS,Q2OUT,EB_INDEX)
+221c221
+<       if (TARG .eq. 'ND3') mtarg = 1.876
+---
+>       if (TARG .eq. 'ND3') mtarg = 1.876D0
+266,283d265
+< 
+< 
+< 
+<       
+<       FUNCTION trim(instring)
+< 
+< c     frw eventually, this function should duplicate the XLF90 function
+< c     that one removes trailing spaces from a string and shortens it
+< c     very convenient for output formatting...
+< 
+<       implicit none
+< 
+<       character(*) trim, instring
+< 
+<       trim = instring
+< 
+<       return
+<       end
+diff v1.0/SrcDir/sigmarNEW_SEKnw17.f STEG_EG4/src/sigmarNEW_SEKnw17.f
+28,30c28,30
+< 
+<       FakeProton = .TRUE.
+< 
+---
+> C     Jixie: test the diff between false and ture for FakeProton, original value is true
+> C     FakeProton = .TRUE.
+>       FakeProton = .FALSE.
+Only in STEG_EG4/src: sigmarNEW_SEKnw17.f.~1~
+diff v1.0/SrcDir/stegAll_myOwnNoAvgXSinBinMultSc.f STEG_EG4/src/stegAll_myOwnNoAvgXSinBinMultSc.f
+19c19
+< c     so that would mean that XCUT will take the earlier assigned value of XCUT=2*0.9900
+---
+> c     so that would mean that XCUT will take the earlier assigned value of XCUT=A*0.9900
+38c38
+<       INTEGER EB_INDEX,seed     !kp: don't forget to change the value of this below or modify code get it from command line
+---
+>       INTEGER EB_INDEX,seed     !Jixie: EB_INDEX will be signed according to input beam erngy and target type
+41a42,43
+> c     By jixie: add this function to check infinity and NAN
+>       INTEGER IsInfinityOrNAN
+42a45,48
+> c     Jixie: PACKF, ITARG will be used to call xiaochao's subroutine to calculate TA, TB, PACKF      
+>       REAL*8  PACKF             
+>       INTEGER ITARG             
+>       
+72c78
+<       real sgs, Qsq, www        !kp:5/11/12: Qsq,www added to generate only inelastic events using overall map made earlier
+---
+>       real sgs, Qsq, www,Ep_elas,Ep_cut !kp:5/11/12: Qsq,www added to generate only inelastic events using overall map made earlier
+227a234,235
+> c     Jixie: changed SET_THINGS_UP() to take beam energy as argument
+>       call SET_THINGS_UP(Ebeam,TMOD,EB_INDEX)
+229,231c237,242
+<       call SET_THINGS_UP(TMOD)
+< c     XCUT=0.9900
+<       XCUT=2*0.9900
+---
+> c     Jixie changed XCUT to XCUT=A*0.99      
+>       XCUT=0.99D0               ! for NH3 
+>       IF (TARG.EQ.'ND3') THEN
+>          XCUT=2.D0*0.99D0       ! for ND3
+>       ENDIF
+>       
+250a262
+> 
+285,287c297,300
+<             sin2 = (1.0-cos(THRC*degrad))/2.0
+<             XCUT = 1.0/(0.0658/(E*EP*sin2)+1.0)
+<             XCUTRC = XCUT
+---
+> C     Jixie:  I disable these 3 lines. Sebastian told to keep XCUT=A*0.99
+> C     sin2 = (1.0-cos(THRC*degrad))/2.0
+> C     XCUT = 1.0/(0.0658/(E*EP*sin2)+1.0)
+> C     XCUTRC = XCUT
+295,296c308,348
+<             call sgm_model_rcslacpol(NPTS,TMOD,ENERGY, !E = Ebeam, EP = E' = E_prime and THETAD = theta in degrees?
+<      >           EPRC,THRC,XCUTRC,SCAT_PHIR,sig)
+---
+>             call sgm_model_rcslacpol(NPTS,TMOD,ENERGY, !E = Ebeam, EP = E' = E_prime and THETAD = theta in degrees
+>      >           EPRC,THRC,XCUTRC,SCAT_PHIR,sig,EB_INDEX)     
+> c     By Jixie: sometimes the output PP_SIGA(NPTS),PP_SIGRADA(NPTS),PP_SIGP(NPTS),PP_SIGRADP(NPTS) is infinity or NaN
+> c     I have to check them before print them into the output file -----20180205
+>             if( IsInfinityOrNAN(PP_SIGA(NPTS)) .gt. 0 .or. 
+>      >           IsInfinityOrNAN(PP_SIGRADA(NPTS)) .gt. 0  .or. 
+>      >           IsInfinityOrNAN(PP_SIGP(NPTS)) .gt. 0  .or.   
+>      >           IsInfinityOrNAN(PP_SIGRADP(NPTS)) .gt. 0  ) then
+>                PP_SIGA(NPTS) = 0.0D0 
+>                PP_SIGRADA(NPTS) = 0.0D0 
+>                PP_SIGP(NPTS) = 0.0D0 
+>                PP_SIGRADP(NPTS) = 0.0D0 
+>                sig = 0.D0
+>             endif
+> C     By Jixie: sometimes the radiated unpolarized XS is negative, if it happens, set them to zero   -----20180205
+>             if(  PP_SIGRADA(NPTS) .lt. 0.0D0 ) then              
+>                print*, "radiated unpolarized XS is negative!!! sig=",sig
+>                PP_SIGA(NPTS) = 0.0D0 
+>                PP_SIGRADA(NPTS) = 0.0D0 
+>                PP_SIGP(NPTS) = 0.0D0 
+>                PP_SIGRADP(NPTS) = 0.0D0 
+>                sig = 0.D0
+>             endif         
+> 
+> 
+> c     By Jixie: 20180310   (cutting off events below W=0.95, or E'>EP_ELAS-EP_BIN_WIDTH)
+> c     regular E' = (M^2+2*M*E-W^2)/(4*E*sin^2(Theta/2)+2*M)
+> c     elastic scattering: E' = E/(1+E/M*(1-cosTh))
+>             Qsq=2.e0*Ebeam*p_el*(1.e0-cos(theta_el))       
+>             www=sqrt(mp**2 + 2.e0*mp*(Ebeam-p_el) - Qsq) !mp = 0.938272029e0 (defined above)
+>             Ep_elas = Ebeam/(1.e0+Ebeam/mp*(1.e0-cos(theta_el)))
+>             Ep_cut = Ep_elas - ddp
+>             if(www .lt. 0.95e0 .or. p_el .gt. Ep_cut) then              
+>                print*, "Under elastic peak, reset to zero !!! sig=",sig
+>                PP_SIGA(NPTS) = 0.0D0 
+>                PP_SIGRADA(NPTS) = 0.0D0 
+>                PP_SIGP(NPTS) = 0.0D0 
+>                PP_SIGRADP(NPTS) = 0.0D0 
+>                sig = 0.D0
+>             endif         
+> 
+419,420c471,472
+< c     Qsq=2.e0*Ebeam*p_el*(1.e0-cos(theta_el))        !kp: Q^2 = - 4-mom-transfer-squared = 4*Eb*Ep*sin^2(th/2)
+< c     www=sqrt(mn**2 + 2*mn*(Ebeam-p_el) - Qsq)      !!kp: average nucleon mass = 0.938272 (defined in radcon.inc)
+---
+> c     Qsq=2.e0*Ebeam*p_el*(1.e0-cos(theta_el))      !kp: Q^2 = - 4-mom-transfer-squared = 4*Eb*Ep*sin^2(th/2)
+> c     www=sqrt(mn**2 + 2*mn*(Ebeam-p_el) - Qsq)     !!kp: average nucleon mass = 0.939 (defined in radcon.inc)
+471c523,535
+< 
+---
+>          
+> C     Added by jixie:
+> C     The above TA,TB are used for ND3 target. For NH3, call xiaochao's subroutine
+> C     Here I always use ITARG=1 (1.0cm NH3) for the inelastic for energies 3.0, 2.3, 2.0 and 1.3 GeV. 
+> C     For 1.1 GeV only the bottom cell was used (ITARG=11).
+>          IF(TARG .EQ. 'NH3') THEN
+>             ITARG = 1
+>             IF (EB_INDEX .EQ. 1) THEN
+>                ITARG = 11
+>             ENDIF
+>             CALL rleg4_simp(TA,TB,PACKF,-100.93D0,theta_el,ITARG,
+>      >           EB_INDEX)
+>          ENDIF  
+482c546,547
+<          phi_el = phi_el + thCor/sin(THD*radcon) !SEK: theta_new=theta_thrown+theta_x    &    phi_new=phi_thrown+theta_y/sin(theta_thrown)
+---
+> C     Jixie: turn off MSC for phi angle
+> C     phi_el = phi_el + thCor/sin(THD*radcon) !SEK: theta_new=theta_thrown+theta_x    &    phi_new=phi_thrown+theta_y/sin(theta_thrown)
+569c634
+<             print *, 'jixie debug: call BOSTA'
+---
+> C     print *, 'jixie debug: call BOSTA'
+571c636,637
+<             print *, 'jixie debug: call BOSBK'
+---
+> C     print *, 'jixie debug: call BOSBK'
+> C     By Jixie: this line causes problem! Since it does not do anything to the bos banks, this line can be skipped       
+574c640
+<          print *, 'jixie debug: call HFN'
+---
+> C     print *, 'jixie debug: call HFN'
+741a808,826
+> 
+> C     Added by Jixie: check if it is inifinity(return 1) or NAN(return 2)
+>       integer function IsInfinityOrNAN(A)
+>       IMPLICIT NONE
+>       real*8, intent(in) :: A
+>       integer ret
+>       ret = 0
+>       if (A > HUGE(A)) then
+>          print*, "    Catch an INFINITY!!!"
+>          ret=1
+>       endif
+>       if(isnan(A)) then
+>          print*, "    Catch an NaN!!!"
+>          ret=2
+>       endif    
+>       IsInfinityOrNAN = ret    
+>       return 
+>       end function
+>       
