@@ -3,6 +3,13 @@ By Jixie Zhang @20180306
 This program is called STEG. It is used to generate xs map and generate events
 for simulation. So far it is dedicated for EG4 experiment in Jlab.
 
+---------------------------------------------------------------------
+03/15/2018
+1. Solved bug about signning EB_INDEX. 
+2. Files newSFsSEK17.f sek_meKPA.f sigmarNEW_SEKnw17.f are in CRLF(windows) ending format, 
+   Changed them to CR(Unix) ending format. Changed all of them to EMACS indent format.
+3. Replaced YoniSEK.f using the original version without my format.
+4. Added file Changes_Since_V1.0.txt make it possible to trace back to version 1.0. 
 
 ---------------------------------------------------------------------
 1. Found that the xs under elastic peak seems abnormal large than its neighbour points.
@@ -10,9 +17,9 @@ This is due to the fact that in some theta bin, the center value of the theta-p 
 E'_elastic. Since we are not simulate elastic peak in STEG, we would like to remove these points.
 The following cuts are applied:
 
-    XCUT < A*0.99
-    E' < E'_elastic -E'_bin_width
-    W > 0.95 
+    XCUT < A*0.99; 
+    E' < E'_elastic -E'_bin_width; 
+    W > 0.95 .
 
 2. During throw event, called Xiaochao's subroutine 'rleg4_simple(xxx)' to calculate TA,TB.
 TA will be used to determine MSC for theta of the scattered electron. 
