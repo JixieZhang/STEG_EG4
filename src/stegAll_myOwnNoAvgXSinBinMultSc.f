@@ -41,6 +41,9 @@ c     ===== ===== My own Additions =====
       INTEGER DBG_MY_KINE
 c     By jixie: add this function to check infinity and NAN
       INTEGER IsInfinityOrNAN
+      
+c     By jixie: add this to check if file exsits
+      logical FileExist
 
 c     Jixie: PACKF, ITARG will be used to call xiaochao's subroutine to calculate TA, TB, PACKF      
       REAL*8  PACKF             
@@ -124,43 +127,47 @@ c     READ(InputFile,*) csmapORevGen
       flag_remap=.false.
       el_flag=1.e0
 
-
-
-
-ccccc Input
-      print*,'Enter beam energy [GeV]:'
-      read*,Ebeam
-      print*,'Enter torus current [A]:'
-      read*,t_current
-      print*,'Enter beam spot radius [cm]:'
-      read*,r_beam
-      print*,'Enter beam offset: bx and by [cm]:'
-      read*,x_beam,y_beam
-      print*,'Enter target length [cm]:'
-      read*,t_length
-      print*,'Enter target offset [cm]:'
-      read*,t_offset
-      print*,'Enter theta_min and theta_max 
-     &for detected electron [degree]:'
-      read*,theta_el_min,theta_el_max
-      cth_el_min=cos(theta_el_max*degrad)
-      cth_el_max=cos(theta_el_min*degrad)
-      print*,'Enter phi_min and phi_max for detected electron [degree]:'
-      read*,phi_el_min,phi_el_max
-      phi_el_min=phi_el_min*degrad
-      phi_el_max=phi_el_max*degrad
-      print*,'Enter p_min and p_max for detected electron [GeV]:'
-      read*,p_el_min,p_el_max
-      print*,'Enter acceptance cut mode: Y/N' 
-      read*,answ
-      if(answ.eq.'Y') flag_acc=.true.
-      print*,'Do you want to remap: Y/N' !kp: not needed in cs_map generation
-      read*,answ
-      if(answ.eq.'Y') flag_remap=.true.
-      print*,'Enter number of events:' !kp: not needed in cs_map generation
-      read*,Nstory
-      print*,'Enter cs-map filename:'     
-      read(*,'(A100)') csmapfile
+c     check if input file exist 
+      FileExist=.false.
+      inquire(file='stegAllvPREG.dat', exist=FileExist) 
+      if(FileExist) then
+        print *,'Reading arguments from file stegAllvPREG.dat' 
+      endif
+ccccc c ... Read Input from file 'stegAllvPREG.dat'
+      if (FileExist) then
+         open(1,file='stegAllvPREG.dat',status='old')     
+         read(1,*) Ebeam
+         print*,'Used beam energy [GeV]:', Ebeam
+         read(1,*) t_current
+         print*,'Used torus current [A]:', t_current
+         read(1,*) r_beam
+         print*,'Used beam spot radius [cm]:', r_beam
+         read(1,*) x_beam, y_beam
+         print*,'Used beam offset: bx and by [cm]:', x_beam, y_beam
+         read(1,*)  t_length
+         print*,'Used target length [cm]:', t_length
+         read(1,*) t_offset
+         print*,'Used target offset [cm]:', t_offset
+         read(1,*) theta_el_min,theta_el_max
+         print*,'Used theta_min and theta_max for detected electron [degree]:', theta_el_min, theta_el_max
+         cth_el_min=cos(theta_el_max*degrad)
+         cth_el_max=cos(theta_el_min*degrad)
+         read(1,*) phi_el_min, phi_el_max
+         print*,'Used phi_min and phi_max for detected electron [degree]:', phi_el_min, phi_el_max
+         phi_el_min=phi_el_min*degrad
+         phi_el_max=phi_el_max*degrad
+         read(1,*) p_el_min, p_el_max
+         print*,'Used p_min and p_max for detected electron [GeV]:',  p_el_min, p_el_max
+         read(1,*) answ
+         print*,'Used acceptance cut mode: Y/N  ', answ
+         if(answ.eq.'Y') flag_acc=.true.
+         read(1,*) answ
+         print*,'Do you want to remap: Y/N  ' , answ !kp: not needed in cs_map generation
+         if(answ.eq.'Y') flag_remap=.true.
+         read(1,*) Nstory
+         print*,'Used number of events:' , Nstory !kp: not needed in cs_map generation    
+         read(1,'(A100)') csmapfile
+         print*,'Used cs-map filename:' , csmapfile
 c     read(*,'(A100)') siga_map
 c     read(*,'(A100)') sigeltaila_map
 c     read(*,'(A100)') sigqtaila_map
@@ -176,15 +183,72 @@ c     read(*,'(A100)') sigintailp_map
 c     read(*,'(A100)') sigradp_map
 c     read(*,'(A100)') deltp_i_map
 c     read(*,'(A100)') deltp_e_map
-      print*,'Enter acc-map filename:'     
-      read(*,'(A100)') accfile
-      print*,'Enter output filename:' !kp: not needed in cs_map generation
-      read(*,'(A100)') filebos
+         read(1,'(A100)') accfile
+         print*,'Used acc-map filename:', accfile
+         read(1,'(A100)') filebos
+         print*,'Used output filename:', filebos !kp: not needed in cs_map generation
+         read(1,*) csmapORevGen !kp: Used 1 or 2 from command line. 
+         print*,'Used 1 OR 2 for csmap OR event Generation', csmapORevGen !kp:4/11/12: crucial to combine two functions in one program
+         close(1)      
+         print *,'Finish reading arguments from file stegAllvPREG.dat' 
+      else
+ccccc get Input from shell
+         print*,'Enter beam energy [GeV]:'
+         read*,Ebeam
+         print*,'Enter torus current [A]:'
+         read*,t_current
+         print*,'Enter beam spot radius [cm]:'
+         read*,r_beam
+         print*,'Enter beam offset: bx and by [cm]:'
+         read*,x_beam,y_beam
+         print*,'Enter target length [cm]:'
+         read*,t_length
+         print*,'Enter target offset [cm]:'
+         read*,t_offset
+         print*,'Enter theta_min and theta_max for detected electron [degree]:'
+         read*,theta_el_min,theta_el_max
+         cth_el_min=cos(theta_el_max*degrad)
+         cth_el_max=cos(theta_el_min*degrad)
+         print*,'Enter phi_min and phi_max for detected electron [degree]:'
+         read*,phi_el_min,phi_el_max
+         phi_el_min=phi_el_min*degrad
+         phi_el_max=phi_el_max*degrad
+         print*,'Enter p_min and p_max for detected electron [GeV]:'
+         read*,p_el_min,p_el_max
+         print*,'Enter acceptance cut mode: Y/N' 
+         read*,answ
+         if(answ.eq.'Y') flag_acc=.true.
+         print*,'Do you want to remap: Y/N' !kp: not needed in cs_map generation
+         read*,answ
+         if(answ.eq.'Y') flag_remap=.true.
+         print*,'Enter number of events:' !kp: not needed in cs_map generation
+         read*,Nstory
+         print*,'Enter cs-map filename:'     
+         read(*,'(A100)') csmapfile
+c     read(*,'(A100)') siga_map
+c     read(*,'(A100)') sigeltaila_map
+c     read(*,'(A100)') sigqtaila_map
+c     read(*,'(A100)') sigintaila_map
+c     read(*,'(A100)') sigrada_map
+c     read(*,'(A100)') sigradanotail_map
+c     read(*,'(A100)') delta_i_map
+c     read(*,'(A100)') delta_e_map
+c     read(*,'(A100)') sigp_map
+c     read(*,'(A100)') sigeltailp_map
+c     read(*,'(A100)') sigqtailp_map
+c     read(*,'(A100)') sigintailp_map
+c     read(*,'(A100)') sigradp_map
+c     read(*,'(A100)') deltp_i_map
+c     read(*,'(A100)') deltp_e_map
+         print*,'Enter acc-map filename:'     
+         read(*,'(A100)') accfile
+         print*,'Enter output filename:' !kp: not needed in cs_map generation
+         read(*,'(A100)') filebos
 
 
-      print*,'Enter 1 OR 2 for csmap OR event Generation.' !kp:4/11/12: crucial to combine two functions in one program
-      read*,csmapORevGen        !kp: Enter 1 or 2 from command line. 
-
+         print*,'Enter 1 OR 2 for csmap OR event Generation.' !kp:4/11/12: crucial to combine two functions in one program
+         read*,csmapORevGen     !kp: Enter 1 or 2 from command line. 
+      endif
 
 
       print*,cth_el_min,cth_el_max,p_el_min,p_el_max,Ebeam
