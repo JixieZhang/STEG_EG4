@@ -4,6 +4,14 @@ This program is called STEG. It is used to generate xs map and generate events
 for simulation. So far it is dedicated for EG4 experiment in Jlab.
 
 ---------------------------------------------------------------------
+03/19/2018
+1. Fixed typo in Makefile. very critical!
+2. Changed stegAll_myOwnNoAvgXSinBinMultSc.f to make it compatible with Lamiaa's version.
+   If file 'stegAllvPREG.dat' exist in currrent dir, will read arguments from this file.
+   Otherwise, will read it from shell (usually run in this way: stegAllvKPA_rhel7 < inputfile)
+  
+
+---------------------------------------------------------------------
 03/15/2018
 1. Solved bug about signning EB_INDEX. 
 2. Files newSFsSEK17.f sek_meKPA.f sigmarNEW_SEKnw17.f are in CRLF(windows) ending format, 
