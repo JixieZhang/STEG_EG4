@@ -52,10 +52,10 @@ C     DEBUG is flag for printing debugging info
 *     
 **************************************************************
       
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      IMPLICIT REAL*8 (A-H,O-Z)
       IMPLICIT INTEGER (I-N)
 
-      DOUBLE PRECISION PF_INI(2,5,11) ! iflag, iEb, itarg
+      REAL*8 PF_INI(2,5,11) ! iflag, iEb, itarg
       integer IPF/1/            ! flag for selecting packing factor values.
 !     IPF=1 is using Sarah's, IPF=2 is using XZ's exclusive results
       

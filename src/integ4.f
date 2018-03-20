@@ -148,6 +148,7 @@ C     For 1.1 GeV only the bottom cell was used (ITARG=11).
             ENDIF
             CALL rleg4_simp(TA,TB,PACKF,zcenter,THET,ITARG,EB_INDEX)
          ENDIF  
+         write(*,'("TB,TA,PF=",3F10.5)') TB,TA,PACKF
 
          CALL RADCROSS(TB,TA,SIGRU,SIGRUNT,SIGRP)
          

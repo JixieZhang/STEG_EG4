@@ -806,6 +806,7 @@ c     Now, the gaussian # with given values for mean & sigma
       return
       end
 
+
 C     Added by Jixie: check if it is inifinity(return 1) or NAN(return 2)
       integer function IsInfinityOrNAN(A)
       IMPLICIT NONE

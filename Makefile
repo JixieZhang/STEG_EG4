@@ -52,7 +52,7 @@ LIBS = $(SYSLIBS) -L$(CLAS_LIB) $(CLASLIBS) -L$(CERN_ROOT)/lib $(CERNLIBS)
 #flags	
 ifndef FFLAGS
   FFLAGS += -m64 -Wall 
-  FFLAFS += -fno-f2c -DLinux -fno-automatic -finit-local-zero
+  FFLAGS += -fno-f2c -DLinux -fno-automatic -finit-local-zero
   FFLAGS += -ffixed-line-length-none -fno-second-underscore -funroll-loops
   FFLAGS += -fomit-frame-pointer -fno-range-check -falign-commons
   FFLAGS += -I$(INCDIR)
