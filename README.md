@@ -7,9 +7,16 @@ for simulation. So far it is dedicated for EG4 experiment in Jlab.
 03/19/2018
 1. Fixed typo in Makefile. very critical!
 2. Changed stegAll_myOwnNoAvgXSinBinMultSc.f to make it compatible with Lamiaa's version.
-   If file 'stegAllvPREG.dat' exist in currrent dir, will read arguments from this file.
-   Otherwise, will read it from shell (usually run in this way: stegAllvKPA_rhel7 < inputfile)
-  
+   If file 'stegAllvPREG.dat' exists in currrent dir, will read arguments from this file.
+   Otherwise, ir will read arguments from shell (usually run in this way: 
+   stegAllvKPA_rhel7 < inputfile )
+3. Changed stegAll_myOwnNoAvgXSinBinMultSc.f. During generating events, print event# 
+   message every 1000 events. Before it prints this message every events.
+4. Fixed bug in file nThnPnSum.inc. 
+-      parameter(num1Dbins=n_p_el*n_p_el)
++      parameter(num1Dbins=n_p_el*n_th_el)
+   This bug does not do anything bad in the past since n_th_el is equal to n_p_el. But it will
+   if n_th_el is not equal to n_p_el.
 
 ---------------------------------------------------------------------
 03/15/2018

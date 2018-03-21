@@ -6,6 +6,6 @@
 !      parameter(n_p_el=100)
 !      parameter(n_th_el=100)
 !      parameter(n_th_el=10)
-      parameter(n_th_el=2)
+       parameter(n_th_el=200)
 !      parameter(n_th_el=4)
 !      parameter(n_th_el=5)

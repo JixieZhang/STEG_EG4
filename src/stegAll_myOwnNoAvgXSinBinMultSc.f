@@ -686,8 +686,9 @@ c     Electron
          IWW(imctk+ipart+11)=0  ! parent track
 c     Increment event numer
          
-         print *,'event number: ',MEVT
-         print *,'number of trials: ',nfail
+c       Jixie: print this messag every 1000 events to speed up         
+         if((MEVT/1000*1000).eq.MEVT) print *,'event number: ',MEVT
+         if((MEVT/1000*1000).eq.MEVT) print *,'number of trials: ',nfail
          nfail=0
          
          if((MEVT/1000*1000).eq.MEVT) print *,' event number ',MEVT
