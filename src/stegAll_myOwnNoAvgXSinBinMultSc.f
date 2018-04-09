@@ -47,7 +47,11 @@ c     By jixie: add this to check if file exsits
 
 c     Jixie: PACKF, ITARG will be used to call xiaochao's subroutine to calculate TA, TB, PACKF      
       REAL*8  PACKF             
-      INTEGER ITARG             
+      INTEGER ITARG    ! 1 for long target(1.0cm) and 11 for short target(0.5cm)                   
+      
+c     Jixie: the following will be used to call energy loss subroutine 
+      REAL*8  p_el_d,theta_el_d
+      INTEGER istick   ! 2 for long target(1.0cm) and 1 for short target(0.5cm)                   
       
 c     integer arg_count         !kp 4/11/12 (crucial to put both cs_map and event generation function in the same prog)
 c     character(len=255) cmd
@@ -73,7 +77,10 @@ c     ===========kp: Variables from RCSLACPOL =====
       CHARACTER*80 FileText(30)
       EXTERNAL DATE
 
-      real DNUP(7),mp,c,rran,d_s,r_d_s !,mpi,pi,me
+!Jixie: add p0_e,th0_e into the ntuple to keep original p_gev and theta_rad
+      real p0_el, theta0_el
+        
+      real DNUP(9),mp,c,rran,d_s,r_d_s !,mpi,pi,me
       real phi_el,el_flag,sin2  !kp: 9/22/12 (added sin2 for XCUT as a function of kinematics (inside the kinematics loop)
       real vert_z,vert_x,vert_y,vert_r,vert_phi
       real vert_el_x,vert_el_y,vert_el_z
@@ -85,13 +92,16 @@ c     ===========kp: Variables from RCSLACPOL =====
       integer istat,icycle,ISTATUS1,NBANK
       integer IMCEV,IMCVX,IMCTK,IHEAD,NR,IPAWC
       integer znt,iphe,ireg_th_el,nfail,nbins(2),ireg(2)
-      character*8 ncode(7)
+      character*8 ncode(9)
       parameter(maxpages=1000,nparz=10000,ntot=100000)
       common/pawc/ipawc(maxpages*128)
       common/inpt/ithe,iphe,ipe !both in cs_init.f and steg.f of steg_Linux
-c     data NVAR/14/,lrecl/1024/,
-      data NVAR/7/,lrecl/1024/, !kp: 4/19/12 (to avoid 7 undefined variables/leaves in the bos/root files)
-     &     ncode/'p_e','th_e','ph_e','id_e','x_e','y_e','z_e'/
+      
+c     !add p0_e,th0_e into the ntuple to keep original p_gev and theta_deg, in total 9 variables now
+      data NVAR/9/,lrecl/1024/
+      data ncode/'p_e','th_e','ph_e','id_e','x_e','y_e','z_e',
+     &           'p0_e','th0_e'/
+      
       data mp/0.938272029e0/,c/29.9792458e0/ !,pi/3.14159265359e0/,me/0.510998918E-03/     !kp: pi,me conflict from STEG & rcslacpol 4/15/12
 c     FRW   EXTERNAL CLOCK_
       COMMON /KINLIST/ERC,EPRC,THRC,EINT,Z,XCUTRC
@@ -268,8 +278,13 @@ c     kp: 5/15/2012:   As long as I understand (http://wwwasdoc.web.cern.ch/wwwa
       call rran_init(seed) 
 
 
+c     Jixie: ============== For rcslacpol ======
+c     Move SET_THINGS_UP() here because generating event mode also need to call
+c     Xiaochao's routine to calculate target thickness: TA,TB and PF. 
+c     Later on PF and target type are also used to calculate energy loss. 
+      call SET_THINGS_UP(Ebeam,TMOD,EB_INDEX)
 
-
+c     Jixie: ============== For rcslacpol ======
 
 
       if(csmapORevGen.eq.1) then
@@ -294,10 +309,7 @@ c     kp: 5/15/2012:   As long as I understand (http://wwwasdoc.web.cern.ch/wwwa
 
 
 c     kpa: ============== For rcslacpol ======
-      EXTERNALv = .TRUE.
-c     Jixie: changed SET_THINGS_UP() to take beam energy as argument
-      call SET_THINGS_UP(Ebeam,TMOD,EB_INDEX)
-
+c     Jixie moved SET_THINGS_UP above but keep XCUT here, since XCUT is used only in creating xs map
 c     Jixie changed XCUT to XCUT=A*0.99      
       XCUT=0.99D0               ! for NH3 
       IF (TARG.EQ.'ND3') THEN
@@ -471,7 +483,7 @@ c     Importance sampling bins
 c     Init maps of cross section
       call read_map(norm,acc_tot,flag_acc)
       
-      print*,1.0+norm,acc_tot
+      print*,'1.0+norm =',1.0+norm,' acc_tot =',acc_tot
       
 c     Open Ntuple
       call hlimit(128*maxpages)
@@ -525,7 +537,8 @@ c     print*, '2'
          theta_el=acos(xx(1))
          p_el=xx(2)
 
-
+         theta0_el = theta_el
+         p0_el = p_el   
 
 
 
@@ -588,7 +601,7 @@ c     CALL RLEG4(TA,TB,0.D0,0.D0,zcenter, THET,0.D0,I_EG4, EB_INDEX)
 C     Added by jixie:
 C     The above TA,TB are used for ND3 target. For NH3, call xiaochao's subroutine
 C     Here I always use ITARG=1 (1.0cm NH3) for the inelastic for energies 3.0, 2.3, 2.0 and 1.3 GeV. 
-C     For 1.1 GeV only the bottom cell was used (ITARG=11).
+C     For 1.1 GeV only the bottom cell(0.5cm) was used (ITARG=11).
          IF(TARG .EQ. 'NH3') THEN
             ITARG = 1
             IF (EB_INDEX .EQ. 1) THEN
@@ -616,9 +629,17 @@ c     kpppp     <         (phi_el-thCor/sin(THD*radcon))*raddeg,phi_el*raddeg
 c     =================1/27/13 ===========================================================================
 
 
-
-
-
+C     Added by jixie: 20180406  
+C     Calculate most probable ionization energy loss, original code from Mikhail Osipenko  
+      IF (ITARG .EQ. 1 ) THEN
+         istick = 2
+      ELSE
+         istick = 1
+      ENDIF
+      p_el_d = p_el
+      theta_el_d = theta_el
+      call eloss_ion_prob(p_el_d,theta_el_d,istick,PACKF)
+      p_el = p_el_d  
 
 
 
@@ -647,6 +668,8 @@ c     Booking Ntuple
          dnup(5) =vert_el_x
          dnup(6) =vert_el_y
          dnup(7) =vert_el_z
+         dnup(8) =p0_el
+         dnup(9) =theta0_el*raddeg
 c     Booking BOS bank
 c     general banks
          iHEAD = NBANK('HEAD',0,8,1) ! BOS HEADER
@@ -686,9 +709,10 @@ c     Electron
          IWW(imctk+ipart+11)=0  ! parent track
 c     Increment event numer
          
-c       Jixie: print this messag every 1000 events to speed up         
-         if((MEVT/1000*1000).eq.MEVT) print *,'event number: ',MEVT
-         if((MEVT/1000*1000).eq.MEVT) print *,'number of trials: ',nfail
+c     Jixie: do not print this message event by event to speed up
+C     nfail is not used any more            
+!        print *,'event number: ',MEVT
+!        print *,'number of trials: ',nfail
          nfail=0
          
          if((MEVT/1000*1000).eq.MEVT) print *,' event number ',MEVT

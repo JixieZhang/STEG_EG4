@@ -101,8 +101,9 @@ c     HiPres = .true.          !     write(6,*) ' --- writing Brief, High Precis
 
 c     frw   get input file name from command line
       InFile = 'rcslacpol.file'
+      print*,'**read parameter file ',InFile,' ...'
       OPEN (UNIT=27,FILE=InFile, STATUS='OLD', err=9911)
-      print*,'Finished reading parameter file rcslacpol.file ...'
+      print*,'finish reading parameter file ',InFile
 
 
 
@@ -324,7 +325,8 @@ C     print *,'EXPER =',EXPER
 
 c     print*,'kp', '  bp', INTPEAKING, EXTPEAKING, TARG
 c     print*, PFERMI,POLTYPE,' ',EXPERIMENT,IFFMOD,IPOL,IPOLRES
-      print*, IPAULI,IA1,IEXTERNAL,AsymChoice,SFchoice
+      print*,'IPAULI,IA1,IEXTERNAL,AsymChoice,SFchoice =',
+     &       IPAULI,IA1,IEXTERNAL,AsymChoice,SFchoice
 c     print*,'kp', '  bp'
 c     return
 
@@ -343,12 +345,9 @@ c     error handling block
       write(6,*) ' could not open INPUT file'
       write(6,*) ' >', InFile, '<'
       write(6,*) ' '
-      goto 9123
-
+      STOP
 
 
  9123 continue
-
-c     STOP
       return
       END

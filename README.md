@@ -4,6 +4,16 @@ This program is called STEG. It is used to generate xs map and generate events
 for simulation. So far it is dedicated for EG4 experiment in Jlab.
 
 ---------------------------------------------------------------------
+04/09/2018
+1. Added "eloss_ion_prob.f" to calculate most probable ionization energy loss.
+2. Modified stegAll_myOwnNoAvgXSinBinMultSc.f to call eloss_ion_prob(XXX):
+   A)Need to call SET_THINGS_UP(XXX) in both creating xs map mode and throw event mode.
+   From now on input file "rcslacpol.file" always required! (this file defined
+   the target type.)
+   B)Added p0_e and th0_e into output ntuple   
+3. Changed some print out message in file read_mapMyOwnVersion.f and set_things_up.f
+  
+---------------------------------------------------------------------
 03/19/2018
 1. Fixed typo in Makefile. very critical!
 2. Changed stegAll_myOwnNoAvgXSinBinMultSc.f to make it compatible with Lamiaa's version.
@@ -11,10 +21,10 @@ for simulation. So far it is dedicated for EG4 experiment in Jlab.
    Otherwise, ir will read arguments from shell (usually run in this way: 
    stegAllvKPA_rhel7 < inputfile )
 3. Changed stegAll_myOwnNoAvgXSinBinMultSc.f. During generating events, print event# 
-   message every 1000 events. Before it prints this message every events.
+   message every 1000 events. Before it prints this message every event.
 4. Fixed bug in file nThnPnSum.inc. 
--      parameter(num1Dbins=n_p_el*n_p_el)
-+      parameter(num1Dbins=n_p_el*n_th_el)
+ (old)      parameter(num1Dbins=n_p_el*n_p_el)
+ (new)      parameter(num1Dbins=n_p_el*n_th_el)
    This bug does not do anything bad in the past since n_th_el is equal to n_p_el. But it will
    if n_th_el is not equal to n_p_el.
 
