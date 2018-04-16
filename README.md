@@ -3,6 +3,14 @@ By Jixie Zhang @20180306
 This program is called STEG. It is used to generate xs map and generate events
 for simulation. So far it is dedicated for EG4 experiment in Jlab.
 
+20180416
+I am going to modify STEG to bin data in SinTheta other than CosTheta.
+The modification on April 9th is the last version that bins in CosTheta.
+I created a branch named 'BinInECosTh' for it in github.  
+From now on, the master branch bins in SinTheta.
+---------------------------------------------------------------------
+
+
 ---------------------------------------------------------------------
 04/09/2018
 1. Added "eloss_ion_prob.f" to calculate most probable ionization energy loss.
