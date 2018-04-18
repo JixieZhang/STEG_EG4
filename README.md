@@ -8,8 +8,14 @@ I am going to modify STEG to bin data in SinTheta other than CosTheta.
 The modification on April 9th is the last version that bins in CosTheta.
 I created a branch named 'BinInECosTh' for it in github.  
 From now on, the master branch bins in SinTheta.
----------------------------------------------------------------------
 
+---------------------------------------------------------------------
+04/16/2018
+This version has a big change comparing to previous one. All tools have been
+rewritten.
+0. Place a copy of 20180409 version as a new branch in github, named 'BinInECosTh'
+1. Binning in sinTheta instead of cosTheta.
+2. Formated some screen outputs
 
 ---------------------------------------------------------------------
 04/09/2018

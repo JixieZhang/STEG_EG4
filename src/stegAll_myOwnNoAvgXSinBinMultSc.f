@@ -20,9 +20,9 @@ c     so that would mean that XCUT will take the earlier assigned value of XCUT=
 c     
 c     
 c     =============kp: Variable declarations from cs_init.f =======================
-      real Ebeam,r_beam,x_beam,y_beam,cth_el_min,cth_el_max,p_el_min
+      real Ebeam,r_beam,x_beam,y_beam,sth_el_min,sth_el_max,p_el_min
      &     ,p_el_max,cs_maxm,cs_int,sig,theta_el_min,theta_el_max
-     &     ,ddcth,ddp
+     &     ,ddsth,ddp
       real theta_el,p_el,t_current,t_length,t_offset,degrad,raddeg
       real v_p_el(0:n_p_el),v_th_el(0:n_th_el),phi_el_min,phi_el_max
       real SIMPS,sgm_model,ppi,delta_phi
@@ -160,8 +160,8 @@ ccccc c ... Read Input from file 'stegAllvPREG.dat'
          print*,'Used target offset [cm]:', t_offset
          read(1,*) theta_el_min,theta_el_max
          print*,'Used theta_min and theta_max for detected electron [degree]:', theta_el_min, theta_el_max
-         cth_el_min=cos(theta_el_max*degrad)
-         cth_el_max=cos(theta_el_min*degrad)
+         sth_el_min=sin(theta_el_min*degrad)
+         sth_el_max=sin(theta_el_max*degrad)
          read(1,*) phi_el_min, phi_el_max
          print*,'Used phi_min and phi_max for detected electron [degree]:', phi_el_min, phi_el_max
          phi_el_min=phi_el_min*degrad
@@ -217,8 +217,8 @@ ccccc get Input from shell
          read*,t_offset
          print*,'Enter theta_min and theta_max for detected electron [degree]:'
          read*,theta_el_min,theta_el_max
-         cth_el_min=cos(theta_el_max*degrad)
-         cth_el_max=cos(theta_el_min*degrad)
+         sth_el_min=sin(theta_el_min*degrad)
+         sth_el_max=sin(theta_el_max*degrad)
          print*,'Enter phi_min and phi_max for detected electron [degree]:'
          read*,phi_el_min,phi_el_max
          phi_el_min=phi_el_min*degrad
@@ -261,19 +261,24 @@ c     read(*,'(A100)') deltp_e_map
       endif
 
 
-      print*,cth_el_min,cth_el_max,p_el_min,p_el_max,Ebeam
+      write(6,'(A,5F12.5)'),' sth_el_min,sth_el_max,p_el_min,p_el_max,Ebeam :',
+     +       sth_el_min,sth_el_max,p_el_min,p_el_max,Ebeam
 
 c     =========kp: Initialize o/p vars and check if min & max of p & th are nonsensical or not ===== cs_init.f ==
 
       cs_maxm=0.0e+0
       cs_int=0.0e+0
-      if(cth_el_min.ge.cth_el_max) return
+      if(sth_el_min.ge.sth_el_max) return
       if(p_el_min.ge.p_el_max) return
 
 
 
 
-c     kp: 5/15/2012:   As long as I understand (http://wwwasdoc.web.cern.ch/wwwasdoc/shortwrupsdir/v115/top.html), the following two lines are only to initialize the random number generator RANLUX(RRAN,1) by feeding it with some seed (recalculated within the local subroutine rran_init()) through the call of RLUXGO(4,idum,0,0) (idum is the recalculated seed, the number returned by GetPID() doesn't really go as the seed to the generator, but idum does depend on that number.)
+c     kp: 5/15/2012:   As long as I understand (http://wwwasdoc.web.cern.ch/wwwasdoc/shortwrupsdir/v115/top.html), 
+c         the following two lines are only to initialize the random number generator RANLUX(RRAN,1) by feeding 
+c         it with some seed (recalculated within the local subroutine rran_init()) through the call of 
+c         RLUXGO(4,idum,0,0) (idum is the recalculated seed, the number returned by GetPID() doesn't really 
+c         go as the seed to the generator, but idum does depend on that number.)
       seed = GetPId()
       call rran_init(seed) 
 
@@ -290,7 +295,7 @@ c     Jixie: ============== For rcslacpol ======
       if(csmapORevGen.eq.1) then
          goto 1111              !kp: proceed with Cross-section map generation
       elseif(csmapORevGen.eq.2) then
-         goto 2222              !kp: use previously produced CSmap and generate events
+         goto 2222              !kp: use previously produced CSmap to generate events
       else
          print*,'Eneter either 1 or 2 for csMap or evnt. Gen.'
          goto 9123              !kp: end the program doing nothing
@@ -345,13 +350,13 @@ c     open(unit=85,file='acc_fc.dat',status='unknown',IOSTAT=STAT)
 
 c     kp:  ================== ================== ============================     
       do i_th_el=1,n_th_el      !kp: Start of Do-loop in i_th_el
-         ddcth=(cth_el_max-cth_el_min)/float(n_th_el)
-         theta_el=acos(cth_el_min+(i_th_el*1.0e+0-0.5e+0)*ddcth) !kp:Added 0.5 to calculated the cross-section in the middle of the bin
+         ddsth=(sth_el_max-sth_el_min)/float(n_th_el)
+         theta_el=asin(sth_el_min+(i_th_el-0.5D0)*ddsth) !kp:Added 0.5 to calculated the cross-section in the middle of the bin
          do i_p_el=1,n_p_el     !kp: Start of Do-loop in i_p_el
             ddp=(p_el_max-p_el_min)/float(n_p_el)
-            p_el=p_el_min+(i_p_el*1.0e+0-0.5e+0)*ddp !kp:Added 0.5 to calculated the cross-section in the middle of the bin
+            p_el=p_el_min+(i_p_el-0.5D0)*ddp !kp:Added 0.5 to calculated the cross-section in the middle of the bin
             
-c     print*,'start calculation'
+            
             SCAT_PHIR = SCAT_PHIR*RADCON !radcon = radian converion factor = rad2deg or deg2rad?
             ENERGY = Ebeam
             ERC = Ebeam
@@ -370,7 +375,7 @@ c     Following three lines added on 6/3/12
             EP=p_el
             THETAD=THRC
 c     kp     ================================ 9/22/12 ======
-C     Jixie:  I disable these 3 lines. Sebastian told to keep XCUT=A*0.99
+C     Jixie:  I disable these 3 lines. Sebastian suggeated to keep XCUT=A*0.99
 C     sin2 = (1.0-cos(THRC*degrad))/2.0
 C     XCUT = 1.0/(0.0658/(E*EP*sin2)+1.0)
 C     XCUTRC = XCUT
@@ -397,7 +402,7 @@ c     I have to check them before print them into the output file -----20180205
             endif
 C     By Jixie: sometimes the radiated unpolarized XS is negative, if it happens, set them to zero   -----20180205
             if(  PP_SIGRADA(NPTS) .lt. 0.0D0 ) then              
-               print*, "radiated unpolarized XS is negative!!! sig=",sig
+               print*, "  Warning: radiated unpolarized XS is negative!!! sig=",sig
                PP_SIGA(NPTS) = 0.0D0 
                PP_SIGRADA(NPTS) = 0.0D0 
                PP_SIGP(NPTS) = 0.0D0 
@@ -414,7 +419,7 @@ c     elastic scattering: E' = E/(1+E/M*(1-cosTh))
             Ep_elas = Ebeam/(1.e0+Ebeam/mp*(1.e0-cos(theta_el)))
             Ep_cut = Ep_elas - ddp
             if(www .lt. 0.95e0 .or. p_el .gt. Ep_cut) then              
-               print*, "Under elastic peak, reset to zero !!! sig=",sig
+               print*, "  Warning: under elastic peak, reset to zero !!! sig=",sig
                PP_SIGA(NPTS) = 0.0D0 
                PP_SIGRADA(NPTS) = 0.0D0 
                PP_SIGP(NPTS) = 0.0D0 
@@ -423,17 +428,22 @@ c     elastic scattering: E' = E/(1+E/M*(1-cosTh))
             endif         
 
 
-            print*,'steg.f: NPTS,th,p,PP_X(NPTS),sig= ',
+            write(6,'(A,I5,4F12.5)'),'steg.f: NPTS,th,p,PP_X(NPTS),sig=',
      >           NPTS,THRC,p_el,PP_X(NPTS),sig
-c     print*,' '
+
 
             write(85,34) acc
             acc_tot=acc_tot+acc
             norm=norm+sig
 c     write(84,34) sig
-            write(84,44) EPRC,THRC,PP_SIGA(NPTS),PP_SIGRADA(NPTS) ! 44   format(f18.9,f18.9,f18.9,f18.9)     !kp:8/13/12
-     >           ,PP_SIGP(NPTS),PP_SIGRADP(NPTS) ! 44   format(f18.9,f18.9,f18.9,f18.9,f18.9,f18.9)          !kp:9/24/12
-c     write(20,12) PP_X(NPTS), Q2OUT, THETAD, PP_SIGA(NPTS), PP_SIGELTAILA(NPTS), PP_SIGQTAILA(NPTS), PP_SIGINTAILA(NPTS),  PP_SIGRADA(NPTS), PP_SIGRADANOTAIL(NPTS)), PP_SIGP(NPTS), PP_SIGELTAILP(NPTS), PP_SIGQTAILP(NPTS), PP_SIGINTAILP(NPTS), PP_SIGRADP(NPTS)
+            write(84,44) EPRC,THRC,PP_SIGA(NPTS),PP_SIGRADA(NPTS), 
+     >           PP_SIGP(NPTS),PP_SIGRADP(NPTS) 
+     
+c     write(20,12) PP_X(NPTS), Q2OUT, THETAD, PP_SIGA(NPTS), 
+c    >  PP_SIGELTAILA(NPTS), PP_SIGQTAILA(NPTS), PP_SIGINTAILA(NPTS),  
+c    >  PP_SIGRADA(NPTS), PP_SIGRADANOTAIL(NPTS)), PP_SIGP(NPTS), 
+c    >  PP_SIGELTAILP(NPTS), PP_SIGQTAILP(NPTS), PP_SIGINTAILP(NPTS), 
+c    >  PP_SIGRADP(NPTS)
 c     12     format(F6.3,1x,F6.3,1x,F7.3,1x,11(E12.5,1x))
 
 c     print*,'ip= ',i_p_el,' ith= ',i_th_el
@@ -469,8 +479,8 @@ c     ============ from read_map.f =====================
  2222 continue                  !Begin Event generation using the previously produced cs-map.
       print*, 'starting event generation!'
 c     Importance sampling bins
-      xmin(1)=cth_el_min
-      xmax(1)=cth_el_max
+      xmin(1)=sth_el_min
+      xmax(1)=sth_el_max
       xmin(2)=p_el_min
       xmax(2)=p_el_max
       nbins(1)=n_th_el
@@ -534,7 +544,7 @@ c     Importance sampling on polar angle and momentum of electron
 c     call sum_uni_distr(xmin,xmax,dx,nbins,cs_max,norm,x,ireg)
          call sum_uni_distr(xmin,xmax,dxx,nbins,fprob,norm,xx,ireg)
 c     print*, '2'
-         theta_el=acos(xx(1))
+         theta_el=asin(xx(1))
          p_el=xx(2)
 
          theta0_el = theta_el
@@ -770,7 +780,6 @@ c     Save new map
 c     ========= kp: cs_init.f  ============
  33   format(i5,i5,i5,i5,1pe11.4,1pe11.4) 
  34   format(1pe11.4)
-c     44   format(f18.9,f18.9,f22.9,f22.9)             !kp:8/13/12
  44   format(f18.9,f18.9,f22.9,f22.9,f22.9,f22.9) !kp:9/24/12
  35   format(1pe11.4$)          ! Missing comma in FORMAT statement at (^)
 c     ^
@@ -809,57 +818,37 @@ c     STOP
 
 
 !     ===========================================================================    
-
+c     Jixie: Using both user input 'num', process id 'pid' and system time
+c     to form a positive interger 'idum' to initialize RANLUX()
+c     https://sites.ifi.unicamp.br/mabernal/files/2015/02/RANLUX_James_CPC94.pdf
+c     http://luscher.web.cern.ch/luscher/ranlux/
       subroutine rran_init(num)
       implicit none
-      real*4 tsec0
-      integer*4 idum,ir1,num,pid,GetPId,qq,HostNm,scan,nl
-      character*20 host_name
+      integer*4 num
+      integer*4 idum,unixtime,pid,GetPId    
       character*28 ctime
-      character*3 month
-      character*2 day
-      character*2 year
-      call timex(tsec0)
-      call getunixtime(idum)
-      call getasciitime(idum,ctime)
-      month = ctime(5:7)
-      day   = ctime(9:10)
-      year  = ctime(23:24)
-      if(day(1:1).eq. ' ') then
-         ir1=48
-         day(1:1)=char(ir1)
-      endif
-
-c     return                    !kp: 4/2/12
       
-c     For multijob run
-      pid=GetPId()              !kp: http://gcc.gnu.org/onlinedocs/gfortran/GETPID.html
-c     qq=HostNm(host_name)
-c     host_name=adjustl(host_name)
-c     nl=scan(host_name,'l')
-c     cnh=host_name(nl:index(host_name,' ')-1)
-c---------------------
-c     idum=int(abs(float(idum)/133.3+
-c     &95621.9*float(num-697899)/float(num+697899)+pid*13.9))
-c     write(6,*) float(idum)/133.3,
-c     &95621.9*float(num-697899)/float(num+697899),pid*13.9
+      call getunixtime(unixtime)
+      call getasciitime(unixtime,ctime)
+    
+      pid=GetPId()             
       
-      write(6,*) idum,num,pid,
-     &     float(idum-123736761)/float(idum+123736761),
+      write(6,*) unixtime,num,pid,
+     &     float(unixtime-123736761)/float(unixtime+123736761),
      &     float(num-697899)/float(num+697899),
      &     float(pid-3835)/float(pid+3835)
       
       idum=int(float(num)*abs(
-     &     float(idum-123736761)/float(idum+123736761)
+     &     float(unixtime-123736761)/float(unixtime+123736761)
      &     -float(num-697899)/float(num+697899)
-     &     +float(pid-3835)/float(pid+3835)))
-      
+     &     +float(pid-3835)/float(pid+3835)))      
       
       write(6,*) 'seed:',idum,' from start time ',ctime
-      if(idum.lt.0.or.idum.ne.idum) stop
+      if(idum.lt.0 .or. idum.ne.idum) stop
       if(idum.eq.num) stop
       if(int(float(idum)/1000.0).lt.1) stop
-      CALL RLUXGO(4,idum,0,0)
+      
+      CALL RLUXGO(4,idum,0,0)  ! this line initialize RANLUX()
       return
       end
 

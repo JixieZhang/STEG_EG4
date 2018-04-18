@@ -63,7 +63,7 @@
       INTEGER NPTS, IS, NEXT, IMODE, I, J, K, L,
      >     PCOIL, DCOIL, IR, NPT, IPT, NPTTOT, NPTAREA,
      >     LSAVE, NZSTEP/10/, NRSTEP/7/, IDEN/8/
-      REAL*8 TA, TLEN, Zv, SIGRU, SIGRP, Q2OUT,THD, !kp: THD added
+      REAL*8 TA, TLEN, Zv, SIGRU, SIGRP, Q2OUT, THD, !kp: THD added
      >     SANSWER, SIGRUTOT, SIGRPTOT, SIGMAR, MULT, 
      >     THET, RAD, DR, RMAX/0.7D0/, ANGLE,
      >     SIGRUSAVE(50), SIGRPSAVE(50), SIGRUNTSAVE(50),
@@ -86,7 +86,8 @@ c     -kag added
       FL_UNPOL = .TRUE.
       EXTFLAG = .FALSE.         !turn off momentarily.
 
-      print*,'integ4.f L83: E,EP,THETAD,Q2: ',E,EP,THETAD,Q2 !kp: 6/3/12
+      write(6,'(A,5F12.5)')'integ4.f L83: E,EP,THETAD,Q2: ',
+     > E,EP,THETAD,Q2  
       
       SANSWER = SIGMAR(E,EP,THETAD)
       Q2OUT = Q2
