@@ -1,11 +1,3 @@
-* KPA 4/16/12: This file is the same as seek_me.f except for the fact that the input data files
-*   (disa1n_fit_error.dat, disa1n_fit_param.dat,disa1p_fit_error.dat, disa1p_fit_param.dat) will be 
-*   opened outside sek_me(), in order to make the program faster by making it open/read/close the 
-*   files only once rather than multiple times.
-*
-*  I realized that the flag 'Firstcallsek' makes the code open and read the output files only once
-*    unlike what I had suspected. So, I didn't modify the code.
-*
       SUBROUTINE sek_me(Wsq, Q2, targ, signp, A1, delA1) !"Final Millenium Edition"
       
 Cc    FRW  changed 10/8/97 from hard-coded constants to constants read from file
@@ -51,9 +43,7 @@ Cc    ========
 
 Cc    Neutron (7 parameter fit disa1n 01S1, change NUMN if number of parameters changes) 
 Cc    ========
-c      NUMN = 7
-c      NUMN = 6                  !kpa: 3/31/12
-      NUMN = 7                  !kpa: 8/19/13  Otherwise "C = dsin(py* XI**paramn(7))" at 138th line below wont work due to paramn(7)
+      NUMN = 7
 
       if(Firstcallsek) then
 
@@ -68,7 +58,6 @@ c      NUMN = 6                  !kpa: 3/31/12
         ENDDO
         CLOSE(UNIT=55)
 
-c        print*,'kpdbg: sek_me file open'
 
         OPEN(UNIT=55,FILE='disa1n_fit_param.dat',STATUS='OLD')
         DO N=1,NUMN
@@ -136,7 +125,6 @@ Cc    sek introduce new variable which extrapolates smoothly to photon point
          A = (paramn(1)+paramn(2)*datan(paramn(3)*paramn(3)*Q2))
          B = (paramn(4) + paramn(5)*datan(paramn(6)*paramn(6)*Q2))
          C = dsin(py* XI**paramn(7))
-c         C = dsin(py* XI**paramn(7))  !kp: 8/19/13: SEK found that (7) in paramn, which doesn't match with the NUMN = 6 value (corresponding to the # of parameters or columns in neutron-input-files such as disa1n_fit_error.dat, so this 7th parameter taking random value may explain why we have the unexpectedly steeply rising g1 (in the model) above W=2 such as shown in http://wwwold.jlab.org/Hall-B//secure/eg4/adhikari/Analysis/SimStuffs/Extracted_g1/g1_stdAndExtracted_StdD57_nStdD62C194S139w40BinsEb8.gif (black line is for the model).
          
          A1n =  XI**A * (1.0 + B* C)
          
@@ -181,8 +169,7 @@ c         C = dsin(py* XI**paramn(7))  !kp: 8/19/13: SEK found that (7) in param
             A1 = 0.D0
          else
             A1 = scale * (F1p*A1p + F1n*A1n) / (F1p+F1n)
-            delA1 = scale/(F1p+F1n) *dsqrt(F1p*F1p*delA1p*delA1p
-     >           +F1n*F1n*delA1n*delA1n)
+            delA1 = scale/(F1p+F1n) *dsqrt(F1p*F1p*delA1p*delA1p+F1n*F1n*delA1n*delA1n)
          endif
          
       elseif (targ=='3') then

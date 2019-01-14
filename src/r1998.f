@@ -152,8 +152,7 @@
       IMPLICIT NONE                                                     
       REAL*8 Q2,X                   
 
-      DR1998 = .0078D0 -.013D0*X +(.070D0 
-     >     -.39D0*X+.70D0*X**2)/(1.7D0+Q2)
+      DR1998 = .0078D0 -.013D0*X +(.070D0 -.39D0*X+.70D0*X**2)/(1.7D0+Q2)
       RETURN                                                            
       END                                              
                  
@@ -163,6 +162,6 @@
       INTEGER UNIT
       
       WRITE(UNIT,'(/''R1998 COMMENTS''/
-     >'' R forced to go linearly to 0 from value at Q2=0.2'')')
+     > '' R forced to go linearly to 0 from value at Q2=0.2'')')
       RETURN
       END

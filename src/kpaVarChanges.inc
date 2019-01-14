@@ -32,9 +32,9 @@ c        changeA1=0.1
 !      parameter(AsymChoiceKpa=12)
 !      parameter(AsymChoiceKpa=15)
 
-      parameter(SFchoiceKpa=11)          !kp: std Case
-!      parameter(SFchoiceKpa=12)
-!      parameter(SFchoiceKpa=13)
+!      parameter(SFchoiceKpa=20)          !kp: std Case
+      parameter(SFchoiceKpa=21)
+!      parameter(SFchoiceKpa=22)
 
       parameter(factorRA=1.0)           !kp: std Case
 !      parameter(factorRA=1.2)          !kp: irrelevant in srucFunc.f program (only in simulation with STEG_RCSLACPOL)

@@ -2,6 +2,7 @@
 *******************************************************************************
 *     
 *******************************************************************************
+C     Jixie: 20190108, Remove FakeProton
 C     Further kludged version June 2017 SEK to allow for all W radiated proton el
 *******************************************************************************
 C     
@@ -12,23 +13,12 @@ C
       INCLUDE 'prinplot.inc'
       
       LOGICAL OK, EXTERNALv     ! If false only internal done.
-      LOGICAL FakeProton        ! p "SF" will be used instead of elastic
       LOGICAL SAVEv
       INTEGER NPTS, ITAIL, NEXT
       REAL*8 SIG, DELINF, SIGMAR, THETA, ERC, EPRC
       CHARACTER*60 TITLE
       CHARACTER*8 TARGETS(3)/' PROTON ','NEUTRON ','DEUTERON'/
       COMMON /INFO/EXTERNALv, NEXT
-
-*******************************************************************************
-C     
-C     HERE YOU HAVE TO DECIDE: FakeProton = .TRUE. means kludged elastic peak,
-C     = .FALSE. means standard procedure (proton elastic tail above W = 1.07 only)
-*******************************************************************************
-C     Jixie: test the diff between false and ture for FakeProton, original value is true
-C     FakeProton = .TRUE.
-      FakeProton = .FALSE.
-*******************************************************************************
 
       E = ERC
       EP = EPRC
@@ -70,23 +60,20 @@ c     print*,'sigmar: EPRC=',EPRC
       OK = .TRUE.
 
 
-C     SK       IF(W2.LT.MPITHR) OK = .FALSE.
-C     SKold       IF((W2.LT.MPITHR).and.(TARG.NE.'ND3')) OK = .FALSE.
-C     SK
+CSK       IF(W2.LT.MPITHR) OK = .FALSE.
+CSKold       IF((W2.LT.MPITHR).and.(TARG.NE.'ND3')) OK = .FALSE.
+CSK
 
 
-      if((TARG .eq. 'ND3').OR. FakeProton) then
-C     quasielastic D or elastic p simulated with "smeared effective SF"
+      if(TARG .eq. 'ND3') then 
          OK = ((W2 .gt. 0.0D0).and.(W2 .gt. (0.882D0-0.499D0*Q2))) ! 
-c     sk September 2012 - needs to be checked for Q^2 > 1.76
-c     sk First condition is strictly speaking too limiting, but for now I want to prevent mischief	   
+CSK September 2012 - needs to be checked for Q^2 > 1.76
+CSK First condition is strictly speaking too limiting, but for now I want to prevent mischief	   
          if(OK) MPITHR = 0.882D0-0.499D0*Q2
          if(MPITHR .le. 0.0D0) MPITHR = 0.001D0
       else
          IF(W2.LT.MPITHR) OK = .FALSE.
       endif
-
-
 
 
       IF(OK) CALL SIG0(W2,1.D0,1.D0,SIG,PP_SIGA(NPTS),PP_SIGP(NPTS))
@@ -98,15 +85,16 @@ c     sk First condition is strictly speaking too limiting, but for now I want t
 
       CALL DELTAVR(PP_DVR(NPTS),DELINF)
 
-      IF(TARG.EQ.'NH3'.AND.TAIL_ON.AND.(.NOT.FakeProton)) CALL SIGRN(ITAIL,SIG,
+
+      IF(TARG.EQ.'NH3'.AND.TAIL_ON) CALL SIGRN(ITAIL,SIG, 
      >     PP_SIGELTAILA(NPTS),PP_SIGELTAILP(NPTS))
-C     SK
-C     SK       IF(TARG.NE.'NH3'.AND.TAIL_ON) CALL SIGRN(ITAIL,SIG,
-C     SK     >      PP_SIGQTAILA(NPTS),PP_SIGQTAILP(NPTS))
-C     SK
+     
+CSK       IF(TARG.NE.'NH3'.AND.TAIL_ON) CALL SIGRN(ITAIL,SIG,
+CSK     >      PP_SIGQTAILA(NPTS),PP_SIGQTAILP(NPTS))
+CSK
       IF((TARG.NE.'NH3'.and.TARG.NE.'ND3').AND.TAIL_ON) 
      >     CALL SIGRN(ITAIL,SIG,PP_SIGQTAILA(NPTS),PP_SIGQTAILP(NPTS))
-C     SK
+CSK
 
 !     Skip special case
       SAVEv = FL_POL

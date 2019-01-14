@@ -9,16 +9,15 @@ c
 	logical FirstCall /.TRUE./
 	
 	real*8 Pi /3.1415926536D0/
-	real*8 Q2,Nu,x,R,F2,F1,FL,qsq,W2,DR,xstarel,yel,mstarsq,tauel,yeleq
+	real*8 Q2, Nu, x, R, F2, F1, FL, qsq, W2, DR, xstarel, yel, mstarsq , tauel, yeleq
 	real*8 Rloop, F2loop, F1loop, G1loop, G2loop, A1loop, A2loop, FLloop
 	real*8 TH, g1, g2, A1, A2, GEP,GEN,GMP,GMN
-	real*8 xOVy,dF00sum,dF90sum,dF99sum,dF11sum,dF12sum,dF21sum,dF22sum,xthr,ythr
+	real*8 xOVy, dF00sum, dF90sum, dF99sum, dF11sum, dF12sum, dF21sum, dF22sum, xthr, ythr
 	real*8 gamma,y, rupper, rlower, tau, MassN /0.939D0/
 	real*8 centroid(21,19), upedge(21,19), sum(19), censum(19), pol90sum(21,19), pol99sum(21,19),
-     *	pol11sum(21,19), pol12sum(21,19), pol21sum(21,19), pol22sum(21,19), 
-     *	f00in(21,1000), f11in(21,1000),  f12in(21,1000), f21in(21,1000), 
-     *  f22in(21,1000),
-     *	f90in(21,1000), f99in(21,1000),
+     *		pol11sum(21,19), pol12sum(21,19), pol21sum(21,19), pol22sum(21,19), 
+     *		f00in(21,1000), f11in(21,1000),  f12in(21,1000), f21in(21,1000), f22in(21,1000),
+     *		f90in(21,1000), f99in(21,1000),
      *		f00sum(21,1000), f11sum(21,1000), f12sum(21,1000), f21sum(21,1000), f22sum(21,1000), 
      *		f90sum(21,1000), f99sum(21,1000),
      *		tot(21), totpol11(21), yelvsx(40,31), xforyel(31), xtest
@@ -36,7 +35,6 @@ c
 
 C******************* ! 	INITIALIZATION ! *****************************
 	IF(FirstCall)THEN
-	write(66,*) ' Yoni first called!'
 	FirstCall = .FALSE.
 	censum(1) = sum(1)/2.0D0
 	do I = 2,19
@@ -52,6 +50,7 @@ C******************* ! 	INITIALIZATION ! *****************************
 	open(unit=69, file='f22.ful', status='OLD')
 	open(unit=70, file='yelas.dat', status='OLD')
 	open(unit=66, file='Yoni.out', status='NEW')
+	write(66,*) ' Yoni first called!'
 	
 	do I = 1,21
 	  tot(I) = 0.0
@@ -299,14 +298,13 @@ c	  G2loop = G2loop
 1789	continue	
 	if(YoniIndex .lt. 2 .or. higamma) goto 451 ! Only quasi-elastic contribution
 	
-	xthr = Q2/(1.08D0*1.08D0 - MassN*MassN + Q2)
+	xthr = Q2/(1.07D0*1.07D0 - MassN*MassN + Q2)
 	ythr = x/xthr
 	
 	do I = 1 , 19
 	  y = centroid(J,I)
 	  if(y.le.ythr) goto 119
 	  xOVy = x/y
-	  if ((xOVy .lt. 0.001).or.(xOVy .gt. 0.98)) goto 119
 	  if(I.eq.1)then
 	    dF00sum = sum(I)
 	    dF90sum = pol90sum(J,I)
@@ -329,7 +327,6 @@ C	R is here only used as placeholder for sign/sigp
 	  TH = 25.0 D00 ! Arbitrary, not really needed
 	  call G1G2new(xOVy, Q2, TH, T, G1loop, G2loop, A1loop, A2loop)
 	  FLloop = gamma*gamma*F2loop - 2.0D0*xOVy*F1loop
-	  if (FLloop .le. 0.0) FLloop = 0.0
 	  F2 = F2 + dF00sum*F2loop
 	  FL = FL + dF90sum*F2loop + dF99sum*FLloop
 	  g1 = g1 + dF11sum*G1loop/y + dF12sum*G2loop/y
@@ -344,7 +341,6 @@ C	R is here only used as placeholder for sign/sigp
 	  A1 = (g1 - (gamma*gamma - 1.0D0)*g2)/F1
 	  A2 = dsqrt(gamma*gamma - 1.0D0)*(g1 + g2)/F1
 	else
-	  F1 = 0.0D0
 	  R = 0.0D0
 	  A1 = 0.0D0
 	  A2 = 0.0D0

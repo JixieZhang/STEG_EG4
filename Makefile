@@ -15,9 +15,9 @@ ifndef PROG
 
 #kp: Gets the program name (e.g. in case of generate_map dir. it's 'steg' and in case of read_map/work/ dir. it's 'read_map'
   ifeq ($(NFILES),1)
-    PROG     = $(shell grep -i program $(SRCDIR)/*.f | awk '$$1=="program"&&$$3==""{print $$2}' )
+    PROG     = $(shell grep -i program $(SRCDIR)/*.f | awk 'tolower($$1)=="program"&&$$3==""{print $$2}' )
   else
-    PROG     = $(shell grep -i program $(SRCDIR)/*.f | awk '$$2=="program"&&$$4==""{print $$3}' )
+    PROG     = $(shell grep -i program $(SRCDIR)/*.f | awk 'tolower($$2)=="program"&&$$4==""{print $$3}' )
   endif
 endif
 ###############################################################
@@ -68,7 +68,7 @@ ifdef DEBUG
 	FFLAGS +=  -g -ffloat-store
 	ADD_DEBUG = _debug
 #	EXE   = $(PROG)_$(OS_NAME)_${ADD_DUBUG}	
-	EXE   = $(PROG)_rhel$(OS_VERSION)_${ADD_DUBUG}	
+	EXE   = $(PROG)_rhel$(OS_VERSION)_${ADD_DUBUG}
 else 
 	ADD_DEBUG = 
 #	EXE   = $(PROG)_$(OS_NAME)
