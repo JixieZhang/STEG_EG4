@@ -1074,6 +1074,9 @@ csk        This will be passed as A2_WW(xRR) to G1G2
             A2 = 0.925*(F1p*A2p + F1n*A2n)/(F1p+F1n)
             A1 = 0.925*(F1p*A1p + F1n*A1n)/(F1p+F1n)
          endif
+csk      =========================== SEK: NEEDS TO BE CHANGED HERE, TOO!
+         A1 = A1 + changeA1
+c        =========================== Jixie
          NU = Q2/(2.D0*MP*X)
          GAMMA2 = Q2/(NU*NU)
          RGAMMA2 = DSQRT(GAMMA2)

@@ -25,12 +25,12 @@ c        changeA1=0.1
 *
 *     kpa: 8/6/13: added factorRA to multiply RA by 1.2 (or change it by 20% for systematics)
 ******************************************************************************
-      parameter(changeA1=0.0)            !kp: std Case
-!      parameter(changeA1=0.1)
+!      parameter(changeA1=0.0)            !kp: std Case
+      parameter(changeA1=0.1)
 
-      parameter(AsymChoiceKpa=11)        !kp: std Case
-!      parameter(AsymChoiceKpa=12)
-!      parameter(AsymChoiceKpa=15)
+!      parameter(AsymChoiceKpa=11)        !kp: std Case
+!      parameter(AsymChoiceKpa=13)
+      parameter(AsymChoiceKpa=15)
 
 !      parameter(SFchoiceKpa=20)          !kp: std Case
       parameter(SFchoiceKpa=21)
