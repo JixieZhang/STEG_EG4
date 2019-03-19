@@ -8,7 +8,9 @@
       include 'bcs.inc'
       include 'binning.inc'
       include 'csmap.inc'
-      include 'regen.inc'      
+      include 'regen.inc'
+
+      INCLUDE 'kpaVarChanges.inc'   !Jixie: to acess UseLongTarget
 c     ======================================= 2/27/13============================
 c     
 c     First saved the original copy as ~/SingleProg2Stage/BackUp/stegAllmyOwnV1_27_13NoAvgXSinBinMultScB4_2_27_13.f & 
@@ -47,7 +49,7 @@ c     By jixie: add this to check if file exsits
 
 c     Jixie: PACKF, ITARG will be used to call xiaochao's subroutine to calculate TA, TB, PACKF      
       REAL*8  PACKF             
-      INTEGER ITARG    ! 1 for long target(1.0cm) and 11 for short target(0.5cm)                   
+      INTEGER ITARG    ! 1/11 for top/bottom long target(1.0cm) and 5 for short target(0.5cm)                   
       
 c     Jixie: the following will be used to call energy loss subroutine 
       REAL*8  p_el_d,theta_el_d
@@ -610,10 +612,12 @@ c     CALL RLEG4(TA,TB,0.D0,0.D0,zcenter, THET,0.D0,I_EG4, EB_INDEX)
          
 C     Added by jixie:
 C     The above TA,TB are used for ND3 target. For NH3, call xiaochao's subroutine
-C     Here I always use ITARG=1 (1.0cm NH3) for the inelastic for energies 3.0, 2.3, 2.0 and 1.3 GeV. 
-C     For 1.1 GeV only the bottom cell(0.5cm) was used (ITARG=11).
+C     Here I always use ITARG=1 (1.0cm top NH3) for the inelastic for energies 3.0, 2.3, 2.0 and 1.3 GeV. 
+C     For 1.1 GeV only the bottom cell(1.0cm) was used (ITARG=11).
+C     Jx: 20190214, add short target (0.5cm) case
          IF(TARG .EQ. 'NH3') THEN
             ITARG = 1
+            IF(UseLongTarget .NE. 1) ITARG = 5
             IF (EB_INDEX .EQ. 1) THEN
                ITARG = 11
             ENDIF

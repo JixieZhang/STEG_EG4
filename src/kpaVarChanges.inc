@@ -1,5 +1,6 @@
       integer AsymChoiceKpa, SFchoiceKpa
-      REAL*8 changeA1,factorRA 
+      REAL*8 changeA1,factorRA
+      integer UseLongTarget
 
 c        changeA1=0.1
 !     7/30/13: this file used to control changes in A1 etc w.r.t. 
@@ -25,16 +26,20 @@ c        changeA1=0.1
 *
 *     kpa: 8/6/13: added factorRA to multiply RA by 1.2 (or change it by 20% for systematics)
 ******************************************************************************
-!      parameter(changeA1=0.0)            !kp: std Case
-      parameter(changeA1=0.1)
+      parameter(changeA1=0.0)            !kp: std Case
+!      parameter(changeA1=0.1)
 
-!      parameter(AsymChoiceKpa=11)        !kp: std Case
+      parameter(AsymChoiceKpa=11)        !kp: std Case
 !      parameter(AsymChoiceKpa=13)
-      parameter(AsymChoiceKpa=15)
+!      parameter(AsymChoiceKpa=15)
 
-!      parameter(SFchoiceKpa=20)          !kp: std Case
-      parameter(SFchoiceKpa=21)
+      parameter(SFchoiceKpa=20)          !kp: std Case
+!      parameter(SFchoiceKpa=21)
 !      parameter(SFchoiceKpa=22)
 
       parameter(factorRA=1.0)           !kp: std Case
 !      parameter(factorRA=1.2)          !kp: irrelevant in srucFunc.f program (only in simulation with STEG_RCSLACPOL)
+
+      parameter(UseLongTarget=1)        !control if use long (1) or short(!=1) target 
+
+

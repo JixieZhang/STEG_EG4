@@ -140,10 +140,12 @@ c     TA = 1.2*TA           !kp:8/6/13 (for Systematics)
 C     
 C     Added by jixie:
 C     The above TA,TB are used for ND3 target. For NH3, call xiaochao's subroutine
-C     Here I always use ITARG=1 (1.0cm NH3) for the inelastic for energies 3.0, 2.3, 2.0 and 1.3 GeV. 
+C     Here I always use ITARG=1 (1.0cm top NH3) for the inelastic for energies 3.0, 2.3, 2.0 and 1.3 GeV. 
 C     For 1.1 GeV only the bottom cell was used (ITARG=11).
+C     Jx: 20190214, add short target (0.5cm) case
          IF(I_EG4 .EQ. 1) THEN
             ITARG = 1
+            IF(UseLongTarget .NE. 1) ITARG = 5
             IF (EB_INDEX .EQ. 1) THEN
                ITARG = 11
             ENDIF

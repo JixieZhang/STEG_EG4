@@ -545,7 +545,7 @@ c     f1nm = scale*f1nm
                endif
             endif
          elseif (SFChoice .eq. 10) then
-C     jixie            call F1F2IN07(Z_targ, A_targ, Q2, WSQ, F1, F2, R)
+            call F1F2IN07(Z_targ, A_targ, Q2, WSQ, F1, F2, R)
          else
             call F1F2IN09(Z_targ, A_targ, Q2, WSQ, F1, F2, R)
          endif
@@ -597,13 +597,10 @@ C     jixie            call F1F2IN07(Z_targ, A_targ, Q2, WSQ, F1, F2, R)
             R = 0.02D0
          endif
       endif
-      if ((SFChoice .eq. 13).or.(SFChoice .eq. 16).or.(SFChoice.eq.19).or.
-     >     (SFChoice.eq.22)) then
-         if (R .lt. dR) then
-            R = R + dR          !
-         else
-            R = R - dR
-         endif
+      if ((SFChoice .eq. 13).or.(SFChoice .eq. 16).or.(SFChoice.eq.19).or.(SFChoice.eq.22)) then
+C     Jixie, keep only R = R + dR
+C         write(6,*) 'DORES  R=',R,'  dR=',dR,'  W2=',WSQ,'  Q2=',Q2
+         R = R + dR
       endif
       F1 = (4.D0*Mn*Mn*X*X/Q2+1.D0)*F2/2.0D0/X/(1+R)
 
@@ -611,7 +608,7 @@ C     jixie            call F1F2IN07(Z_targ, A_targ, Q2, WSQ, F1, F2, R)
          if((SFChoice .gt. 10).and.(SFChoice .lt. 17)) then
             call F1F2QE09(Z_targ, A_targ, Q2, WSQ, F1res, F2res)
          elseif (SFChoice .eq. 10) then
-C     jixie                         call F1F2QE07(Z_targ, A_targ, Q2, WSQ, F1res, F2res)
+            call F1F2QE07(Z_targ, A_targ, Q2, WSQ, F1res, F2res)
          else
             call F1F2QE09dr(Z_targ, A_targ, Q2, WSQ, F1res, F2res)
          endif
@@ -619,7 +616,7 @@ c     if(F1res .lt. 0) write(6,*) Z_targ,A_targ,Q2,WSQ,F1res,F2res
          if (F1res .gt. 0.0) F1 = F1+F1res
          if (F2res .gt. 0.0) F2 = F2+F2res
       endif
-      if ((SFChoice.eq.12).or.(SFChoice.eq.15).or.(SFChoice.eq. 18).or.(SFChoice.eq. 21))  then
+      if ((SFChoice.eq.12).or.(SFChoice.eq.15).or.(SFChoice.eq.18).or.(SFChoice.eq.21))  then
       F1 = F1*1.03
       F2 = F2*1.03
       endif
@@ -659,11 +656,9 @@ c     write(6,*) ' End of DORES: ', F1, F2
       endif                     ! TARG .ne. 'P'
       CALL R1998(X,Q2,R,DR,GOOD)
       if ((SFChoice .eq. 13).or.(SFChoice .eq. 16).or.(SFChoice.eq.19).or.(SFChoice.eq.22)) then
-      if (R .lt. dR) then
-         R = R + dR             !
-      else
-         R = R - dR
-      endif
+C     Jixie, keep only R = R + dR
+C         write(6,*) 'DOINEL  R=',R,'  dR=',dR,'  W2=',WSQ,'  Q2=',Q2
+         R = R + dR
       endif
       F1 = (4.D0*Mn*Mn*X*X/Q2+1.D0)*F2/2.0D0/X/(1+R)
       if (DORES) then

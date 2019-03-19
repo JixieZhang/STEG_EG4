@@ -84,11 +84,9 @@ csk    20: New version by Christie/Kalantarians 2014
 csk    21-22 corresponding error estimates, analog to 12-13
 
       
-      
 ! EXP is the eperiment name for target integration purposes: "E142", "E143",
 ! "E154", "E155", or "NONE" where "NONE" is for no target integration.
        CHARACTER*4 EXPER
-
 
 cfrw  this common block was split first on Bernoulli (ODU) 4/8/99
       COMMON /INSTRUCTL/ INTPEAKING, FL_POL, FL_UNPOL,

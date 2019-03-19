@@ -5,7 +5,7 @@
  LONG       ! POLTYPE: LONG or TRAN for longitudinal or transverse.
  EG4A_1     ! EXPERIMENT: E80, E130, E142, E143_x, E154, E155_x: for targ. integ., or NONE. 
  22         ! IFFMOD: Elastic form factor model index. Nominal=14                 !kp: changed to 22 from 20 on 9/4/12
- 2          ! IPOL:1=g2ww,4=g2=0,5=A2=0,6=A_perp=0.0
+ 1          ! IPOL:1=g2ww,4=g2=0,5=A2=0,6=A_perp=0.0
  1          ! IPOLRES: 1=Kuhn/Stuart(nominal), 2=Stuart, 3=DIS extrapolation
  5          ! IPAULI: 1=Stein, 2=Tsai, 3= deForest, 4=Van Orden, 5=None           !kp: changed to 5 from 2 on 9/4/12
  4          ! IA1: For A1 fit testing, =0 for frw_fit; =1 for nominal; =2 for sek_fit; =3 for sek_nce.
