@@ -10,7 +10,7 @@
       include 'csmap.inc'
       include 'regen.inc'
 
-      INCLUDE 'kpaVarChanges.inc'   !Jixie: to acess UseLongTarget
+      INCLUDE 'kpaVarChanges.inc'   !Jixie: to acess defaultTarget
 c     ======================================= 2/27/13============================
 c     
 c     First saved the original copy as ~/SingleProg2Stage/BackUp/stegAllmyOwnV1_27_13NoAvgXSinBinMultScB4_2_27_13.f & 
@@ -614,12 +614,15 @@ C     Added by jixie:
 C     The above TA,TB are used for ND3 target. For NH3, call xiaochao's subroutine
 C     Here I always use ITARG=1 (1.0cm top NH3) for the inelastic for energies 3.0, 2.3, 2.0 and 1.3 GeV. 
 C     For 1.1 GeV only the bottom cell(1.0cm) was used (ITARG=11).
+C     For 2.3 GeV or 3.0 GeV, and long target, only the top cell(1.0cm) was used (ITARG=1).
 C     Jx: 20190214, add short target (0.5cm) case
+C     Jx: 20190326, add bottom long target (1cm) cases for 2.3, 2.0 and 1.3 GeV
          IF(TARG .EQ. 'NH3') THEN
-            ITARG = 1
-            IF(UseLongTarget .NE. 1) ITARG = 5
+            ITARG = defaultTarget
             IF (EB_INDEX .EQ. 1) THEN
                ITARG = 11
+            ELSEIF (EB_INDEX .GE. 4 .AND. defaultTarget .NE. 5 ) THEN   
+               ITARG = 1
             ENDIF
             CALL rleg4_simp(TA,TB,PACKF,-100.93D0,theta_el,ITARG,
      >           EB_INDEX)

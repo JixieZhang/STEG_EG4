@@ -1,6 +1,6 @@
       integer AsymChoiceKpa, SFchoiceKpa
       REAL*8 changeA1,factorRA
-      integer UseLongTarget
+      integer defaultTarget
 
 c        changeA1=0.1
 !     7/30/13: this file used to control changes in A1 etc w.r.t. 
@@ -28,6 +28,7 @@ c        changeA1=0.1
 ******************************************************************************
       parameter(changeA1=0.0)            !kp: std Case
 !      parameter(changeA1=0.1)
+!      parameter(changeA1=-0.1)
 
       parameter(AsymChoiceKpa=11)        !kp: std Case
 !      parameter(AsymChoiceKpa=13)
@@ -37,9 +38,9 @@ c        changeA1=0.1
 !      parameter(SFchoiceKpa=21)
 !      parameter(SFchoiceKpa=22)
 
-      parameter(factorRA=1.0)           !kp: std Case
-!      parameter(factorRA=1.2)          !kp: irrelevant in srucFunc.f program (only in simulation with STEG_RCSLACPOL)
+      parameter(factorRA=1.0)            !kp: std Case
+!      parameter(factorRA=1.2)           !kp: irrelevant in srucFunc.f program (only in simulation with STEG_RCSLACPOL)
 
-      parameter(UseLongTarget=1)        !control if use long (1) or short(!=1) target 
-
-
+!      parameter(defaultTarget=1)         !what target cell to use by default: top long(1), short(5), bottom long(11) 
+      parameter(defaultTarget=5)         !for 1.1 GeV, it is hard-coded to be 11
+!      parameter(defaultTarget=11)        !for 2.3 GeV or 3.0 GeV, and for long target case, it is hard-coded to be 1
