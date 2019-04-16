@@ -41,6 +41,6 @@ c        changeA1=0.1
       parameter(factorRA=1.0)            !kp: std Case
 !      parameter(factorRA=1.2)           !kp: irrelevant in srucFunc.f program (only in simulation with STEG_RCSLACPOL)
 
-!      parameter(defaultTarget=1)         !what target cell to use by default: top long(1), short(5), bottom long(11) 
-      parameter(defaultTarget=5)         !for 1.1 GeV, it is hard-coded to be 11
+      parameter(defaultTarget=1)         !what target cell to use by default: top long(1), short(5), bottom long(11) 
+!      parameter(defaultTarget=5)         !for 1.1 GeV, it is hard-coded to be 11
 !      parameter(defaultTarget=11)        !for 2.3 GeV or 3.0 GeV, and for long target case, it is hard-coded to be 1

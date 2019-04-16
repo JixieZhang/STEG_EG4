@@ -616,7 +616,7 @@ C     Here I always use ITARG=1 (1.0cm top NH3) for the inelastic for energies 3
 C     For 1.1 GeV only the bottom cell(1.0cm) was used (ITARG=11).
 C     For 2.3 GeV or 3.0 GeV, and long target, only the top cell(1.0cm) was used (ITARG=1).
 C     Jx: 20190214, add short target (0.5cm) case
-C     Jx: 20190326, add bottom long target (1cm) cases for 2.3, 2.0 and 1.3 GeV
+C     Jx: 20190326, add bottom long target (1cm) cases for 2.0, 1.3 and 1.1 GeV
          IF(TARG .EQ. 'NH3') THEN
             ITARG = defaultTarget
             IF (EB_INDEX .EQ. 1) THEN

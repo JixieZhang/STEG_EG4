@@ -47,7 +47,8 @@ C     X. Zheng, Feb 2018, simplified version to calculate rad length for EG4
 C     https://clasweb.jlab.org/rungroups/eg4/wiki/index.php/October_28,_2011
 *     = 2 using XZ's exclusive-channel analysis values
 C     see page 66 of excl channel analysis note
-C     
+C     = 3, use XZ's alternative values
+C   
 C     DEBUG is flag for printing debugging info
 *     
 **************************************************************
@@ -55,9 +56,10 @@ C     DEBUG is flag for printing debugging info
       IMPLICIT REAL*8 (A-H,O-Z)
       IMPLICIT INTEGER (I-N)
 
-      REAL*8 PF_INI(2,5,11) ! iflag, iEb, itarg
-      integer IPF/1/            ! flag for selecting packing factor values.
+      REAL*8 PF_INI(3,5,11) ! iflag, iEb, itarg
+      integer IPF/3/            ! flag for selecting packing factor values.
 !     IPF=1 is using Sarah's, IPF=2 is using XZ's exclusive results
+!     IPF=3 is using XZ's alternative values   
       
       logical DEBUG/.true./
 
@@ -76,41 +78,63 @@ C     DEBUG is flag for printing debugging info
 C     initialize packing factors
       do l=1,5
          do j=1,11
-            do k=1,2
+            do k=1,3
                PF_INI(k,l,j)=0.
             enddo
          enddo
       enddo
 C     IPF=1 using Sarah's values https://clasweb.jlab.org/rungroups/eg4/wiki/index.php/October_28,_2011
+C     top cell
       PF_INI(1,5,1)=0.782
       PF_INI(1,4,1)=0.682
-      PF_INI(1,4,5)=0.720
       PF_INI(1,3,1)=0.716
-      PF_INI(1,3,11)=PF_INI(1,3,1) ! not available from Sarah's
       PF_INI(1,2,1)=0.717
-      PF_INI(1,2,5)=0.602
+C     botttom cell
+      PF_INI(1,3,11)=PF_INI(1,3,1) ! not available from Sarah's
       PF_INI(1,2,11)=0.657
       PF_INI(1,1,11)=0.625 
+C     short cell
+      PF_INI(1,4,5)=0.720
+      PF_INI(1,2,5)=0.602
+
 
 C     Preliminary PACKING FRACTION OF ND3 (from S. Phillips) http://clasweb.jlab.org/rungroups/eg4/wiki/index.php/October_28%2C_2011
       PF_INI(1,2,2)=0.624
       PF_INI(1,3,2)=0.764
       
 C     IPF=2 using XZ's exclusive values (see analysis note)
+C     top cell 
       PF_INI(2,5,1)=0.65
       PF_INI(2,4,1)=0.65
-      PF_INI(2,4,5)=0.30
       PF_INI(2,3,1)=0.65
-      PF_INI(2,3,11)=0.65
       PF_INI(2,2,1)=0.70
-      PF_INI(2,2,5)=0.35
+c     bottom cell
+      PF_INI(2,3,11)=0.65
       PF_INI(2,2,11)=0.70
       PF_INI(2,1,11)=0.75
+c     short cell
+      PF_INI(2,4,5)=0.30*2.0
+      PF_INI(2,2,5)=0.35*2.0
       
 C     for ND3 no excl results available so keep using Sarah's
 C     Preliminary PACKING FRACTION OF ND3 (from S. Phillips) http://clasweb.jlab.org/rungroups/eg4/wiki/index.php/October_28%2C_2011
       PF_INI(2,2,2)=0.624
       PF_INI(2,3,2)=0.764
+
+C     IPF=3 using XZ's alternative values (she just want these values)
+c     top cell
+      PF_INI(3,5,1)=0.60
+      PF_INI(3,4,1)=0.60
+      PF_INI(3,3,1)=0.60
+      PF_INI(3,2,1)=0.657
+c     bottom cell
+      PF_INI(3,3,11)=0.60
+      PF_INI(3,2,11)=0.657
+      PF_INI(3,1,11)=0.70
+c     short cell      
+      PF_INI(3,4,5)=0.764
+      PF_INI(3,2,5)=0.624
+
 
       PF=PF_INI(IPF,IEb,ITARG)
       IF (DEBUG) print *,'packing factor=',PF

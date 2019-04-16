@@ -10,6 +10,31 @@ I created a branch named 'BinInECosTh' for it in github.
 From now on, the master branch bins in SinTheta.
 
 ---------------------------------------------------------------------
+04/16/2019
+1. Modify radLengthEG4_simp.f to support alternative PF values.
+
+---------------------------------------------------------------------
+04/02/2019
+1. Change variable 'UseLongTarget' to 'defaultTarget' in kpaVarChanges.inc. 
+   Modify the code to support top, short and bottom target cells.
+
+---------------------------------------------------------------------
+03/18/2019
+1. Modify Structure function choice 22. For SF=22, only allow R=R+dR.
+   before it could be R=R-dR or R=R+dR.
+
+---------------------------------------------------------------------
+02/07/2019
+1. Modify newSFs.f to make A1=A1+changeA1 take effect for w>=2.02
+2. Add variable 'UseLongTarget' into kpaVarChanges.inc to support short target cell.
+
+---------------------------------------------------------------------
+01/08/2019
+This version has a big change comparing to previous one. 
+1. New structure function subroutines. Modify several files.
+2. Add newSFs.f. Change it to  make A1=A1+changeA1 take effect only for w<2.02
+
+---------------------------------------------------------------------
 04/16/2018
 This version has a big change comparing to previous one. All tools have been
 rewritten.
